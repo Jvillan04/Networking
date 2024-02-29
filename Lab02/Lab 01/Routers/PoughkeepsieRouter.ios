@@ -1,0 +1,174 @@
+! Set Hostname to Poughkeepsie
+en
+conf t
+hostname Poughkeepsie
+
+! Set IP Addresses on interfaces and turn them on (No Shut)
+int s0/0/0
+ip add 197.197.197.162 255.255.255.240
+!Set Bandwidth to 2000 Kilobits (Equal to 2000k)
+bandwidth 2000
+no shut
+!
+int s0/0/1
+ip add 192.168.90.193 255.255.255.252
+clock rate 1000000
+!Set Bandwidth to 1000 Kilobits (Equal to 1000k)
+bandwidth 1000
+no shut
+!
+int s0/1/0
+ip add 192.168.90.202 255.255.255.252
+clock rate 128000
+!Set Bandwidth to 128 Kilobits (Equal to 128k)
+bandwidth 128
+no shut
+!
+int Lo0
+ip add 192.168.90.251 255.255.255.255
+
+exit
+
+! OSPF --------------------------------------------------------------------------------------
+! Create Defualt Static route to ISP Router
+ip route 0.0.0.0 0.0.0.0 197.197.197.161
+
+! Configure OSPF Area 0
+router ospf 1
+! Set the Loopback Address as the static router-ID
+router-id 192.168.90.251
+! Also Advertise Loopback address in OSPF
+network 192.168.90.251 0.0.0.0 area 0
+! Advertise networks for OSPF (.200, .192, .196)
+network 192.168.90.200 0.0.0.3 area 0
+network 192.168.90.192 0.0.0.3 area 0
+network 192.168.90.196 0.0.0.3 area 0
+! Advertise networks in subinterfaces in f0/0 (.0, .32 .64, .96)
+network 192.168.90.0 0.0.0.31 area 0
+network 192.168.90.32 0.0.0.31 area 0
+network 192.168.90.64 0.0.0.31 area 0
+network 192.168.90.96 0.0.0.31 area 0
+
+! Defualt Route injection
+default-information originate
+exit
+
+! Router on a Stick --------------------------------------------------------------------- 
+! Shutdown interface f0/0
+int f0/0
+shutdown
+! Create sub interface for VLAN 1 (For Switches) (First IP in this range is .1) (NetAdd: .0)
+int f0/0.1
+! "native" keyword means that the frames from VLAN 1 won't be tagged with that VLAN ID
+encapsulation dot1q 1 native
+ip add 192.168.90.1 255.255.255.224
+! Create sub interface for VLAN 63 (First IP in this range is .33) (NetAdd: .32)
+int f0/0.63
+encapsulation dot1q 63
+ip add 192.168.90.33 255.255.255.224
+! Create sub interface for VLAN 95 (First IP in this range is .65) (NetAdd: .64)
+int f0/0.95
+encapsulation dot1q 95
+ip add 192.168.90.65 255.255.255.224
+! Create sub interface for VLAN 127 (First IP in this range is .97) (NetAdd: .96)
+int f0/0.127
+encapsulation dot1q 127
+ip add 192.168.90.97 255.255.255.224
+! Turn int f0/0 back on
+int f0/0
+no shut
+
+! DHCP ------------------------------------------------------------------------------------
+! 3 DHCP POOLS for VLAN 1 on Austin, VLAN 63 and VLAN 95 on Poughkeepsie
+
+! DHCP for VLAN 1 on Austin
+! Exclude this address range (.129-.130) so the first IP assigned is .131 for PCA1 (Done in global config mode)
+ip dhcp excluded-address 192.168.90.129 192.168.90.130
+! Make a DHCP Pool for Austin and Name it AUSTIN-LAN-DHCP-POOL (Also goes to DHCP Pool Config mode)
+ip dhcp pool AUSTIN-LAN-DHCP-POOL
+! All commands after this are done in DHCP Pool Config Mode for the AUSTIN-LAN-DHCP-POOL
+! Specify the network address of the network that this address range is part of (.128 /28) in the DHCP Pool
+network 192.168.90.128 255.255.255.240
+! Specify the default Gateway IP addresses being assigned will use  (.129)
+default-router 192.168.90.129
+! Make a domain name
+domain-name inetlab.com
+! Set the DNS Server IP
+dns-server 192.168.90.101
+exit
+
+!DHCP for VLAN 63
+! Exlude this address range (.33-.40) so the first IP assigned is .41 for PCP1
+ip dhcp excluded-address 192.168.90.33 192.168.90.40
+! Make a DHCP pool for VLAN 63 and Name it VLAN63-LAN-DHCP-POOL (Also goes to DHCP Pool Config mode)
+ip dhcp pool VLAN63-LAN-DHCP-POOL
+! All commands after this are done in DHCP Pool Config Mode for the VLAN63-LAN-DHCP-POOL
+! Specify the network address for VLAN 63 (.32 /27)
+network 192.168.90.32 255.255.255.224
+! Specify the default gateway VLAN 63 will use (.33)
+default-router 192.168.90.33
+! Make a domain name
+domain-name inetlab.com
+! Set the DNS Server IP
+dns-server 192.168.90.101
+exit
+
+!DHCP for VLAN 95
+! Exlude this address range (.65-.70) so the first IP assigned is .71 for PCP2
+ip dhcp excluded-address 192.168.90.65 192.168.90.70
+! Make a DHCP pool for VLAN 63 and Name it VLAN95-LAN-DHCP-POOL (Also goes to DHCP Pool Config mode)
+ip dhcp pool VLAN95-LAN-DHCP-POOL
+! All commands after this are done in DHCP Pool Config Mode for the VLAN95-LAN-DHCP-POOL
+! Specify the network address for VLAN 95  (.64 /27)
+network 192.168.90.64 255.255.255.224
+! Specify the default gateway VLAN 95 will use (.65)
+default-router 192.168.90.65
+! Make a domain name
+domain-name inetlab.com
+! Set the DNS Server IP
+dns-server 192.168.90.101
+exit 
+
+! NAT and PAT --------------------------------------------------------------
+
+!Crate a Named Standard Access List named NAT-ACL
+ip access-list standard NAT-ACL
+! Add description about ACL
+remark Used for NAT for specifying what addresses can be translated
+! Add OSPF Networks to access list
+! Add the entire range of address in the 192.168.90 subnets (Since they all start the same)
+! 0.0.0.255 refers to any subnet, you only want to match the first 3 octects (0) and let any other ones on the fourth octet(255)
+permit 192.168.90.0 0.0.0.255
+! Deny anything else
+deny any
+
+! Define a pool of public IP address from 197.197.197.163 to 197.197.197.168 (6 Addresses)
+! Name it PUBLIC-NAT-POOL
+ip nat pool PUBLIC-NAT-POOL 197.197.197.163 197.197.197.168 netmask 255.255.255.240
+! implement PAT (overload)
+ip nat inside source list NAT-ACL pool PUBLIC-NAT-POOL overload
+
+! Apply NAT and PAT to the interfaces Poughkeepsie router is connected to
+! This interface s0/0/0 sends packets outbound to ISP
+int s0/0/0
+ip nat outside
+! These interfaces translate packets from private RFC1918 addresses that go inbound to the Poughkeepsie Router
+int s0/0/1
+ip nat inside
+!
+int s0/1/0
+ip nat inside
+! Also apply NAT and PAT to subinterfaces in f0/0
+int f0/0.1
+ip nat inside
+!
+int f0/0.63
+ip nat inside
+!
+int f0/0.95
+ip nat inside
+!
+int f0/0.127
+ip nat inside
+!
+exit

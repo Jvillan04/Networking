@@ -1,0 +1,61 @@
+! Set Hostname to PoughS1
+en
+conf t
+hostname PoughS1
+
+! Set ports to trunk mode and turn them on
+int f0/1
+switchport mode trunk
+no shut
+!
+int f0/21
+switchport mode trunk
+no shut
+!
+int f0/22
+switchport mode trunk
+no shut
+! Set IP address of switch and enable the interface
+int vlan 1
+ip add 192.168.90.11 255.255.255.224
+no shut
+!
+exit
+! Set Default gateway to Poughkeepsies Routers IP on the network (.1)
+ip default-gateway 192.168.90.1
+
+!VTP ----------------
+! Set Switch as VTP server
+vtp mode server
+! Make the domain
+vtp domain INETLAB
+! Set the vtp password as cisco
+vtp password cisco
+! Create the vlans 63, 95, and 127 on the VTP server
+! VLAN 1 won't be made since there is already a VLAN1
+vlan 63
+exit
+vlan 95
+exit
+vlan 127
+
+! Assign Ports f0/2 and f0/3 to vlan 127 and enable them ----------------
+int f0/2
+switchport mode access
+switchport access vlan 127
+no shut
+!
+int f0/3
+switchport mode access
+switchport access vlan 127
+no shut
+exit
+! STP (Spanning Tree Protocol) Used to prevent loops in a network with redudent paths -------------
+! Ensure that PoughS1 is the root bridge for vlans 1, 63, 95
+spanning-tree vlan 1 root primary
+spanning-tree vlan 63 root primary
+spanning-tree vlan 95 root primary
+spanning-tree vlan 127 root primary
+exit
+
+ 

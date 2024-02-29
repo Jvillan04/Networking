@@ -1,0 +1,36 @@
+! Set Hostanme to Milwaukee
+en
+conf t
+hostname Milwaukee
+
+! Set IP Addresses on Interfaces and turn them on (No shut)
+int s0/0/1
+ip add 192.168.90.194 255.255.255.252
+!Set Bandwidth to 1000 Kilobits (Equal to 1000k)
+bandwidth 1000
+no shut
+!
+int s0/0/0
+ip add 192.168.90.197 255.255.255.252
+!Set Bandwidth to 1000 Kilobits (Equal to 1000k)
+bandwidth 1000
+clock rate 1000000
+no shut
+!
+int Lo0
+ip add 192.168.90.252 255.255.255.255
+
+! OSPF ------------------------------------------------
+!Configure OSPF Area 0
+router ospf 1
+! Set Loopback Address as Static router-ID
+router-id 192.168.90.252
+! Also advertise Loopback Address as the static router-ID
+network 192.168.90.252 0.0.0.0 area 0
+! Advertise networks for OSPF (.192 and .196)
+network 192.168.90.192 0.0.0.3 area 0
+network 192.168.90.196 0.0.0.3 area 0
+exit
+
+
+

@@ -1,0 +1,44 @@
+! Set hostname to Austin
+en
+conf t
+hostname Austin
+
+! Set IP Addresses on Interfaces and turn them on (No shut)
+int f0/0
+ip add 192.168.90.129 255.255.255.240
+no shut
+!
+int s0/0/0
+ip add 192.168.90.198 255.255.255.252
+!Set Bandwidth to 1000 Kilobits (Equal to 1000k)
+bandwidth 1000
+no shut
+!
+int s0/1/0
+ip add 192.168.90.201 255.255.255.252
+!Set Bandwidth to 128 Kilobits (Equal to 128k)
+bandwidth 128
+no shut
+!
+int Lo0
+ip add 192.168.90.253 255.255.255.255
+
+! DHCP Helper Address --------------------------------------------
+! Set the helper address to the loopback address of the Poughkeepsie Router (Your DHCP Server) (Also its router ID) 
+! Do this on f0/0 interface since that is what VLAN1 is connected to
+int f0/0
+ip helper-address 192.168.90.251
+exit
+
+! OSPF ------------------------------------------------
+! Configure OSPF Area 0
+router ospf 1
+! Set Loopback Address as Static router-ID
+router-id 192.168.90.253
+! Also advertise Loopback Address as the static router-ID
+network 192.168.90.253 0.0.0.0 area 0
+! Advertise networks for OSPF (.128, .196, .200)
+network 192.168.90.128 0.0.0.15 area 0
+network 192.168.90.196 0.0.0.3 area 0
+network 192.168.90.200 0.0.0.3 area 0
+exit

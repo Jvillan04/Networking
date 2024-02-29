@@ -1,0 +1,40 @@
+en
+conf t
+hostname PoughS2
+
+! Set IP address of switch and enable the interface
+int vlan 1
+ip add 192.168.90.12 255.255.255.224
+no shut
+!
+exit
+! Set Default gateway to Poughkeepsies Routers IP on the network (.1)
+ip default-gateway 192.168.90.1
+
+
+
+! VTP -----------------------
+! Set Switch as VTP clinet
+vtp mode client
+! Make the domain
+vtp domain INETLAB
+! Set the vtp password as cisco
+vtp password cisco
+
+! Ports -----------------
+! Configure ports and turn them on
+int f0/21
+switchport mode trunk
+no shut
+! Assign ports to VLANS
+int f0/11
+switchport mode access
+switchport access vlan 63
+no shut 
+!
+int f0/12
+switchport mode access
+switchport access vlan 95
+no shut
+!
+exit

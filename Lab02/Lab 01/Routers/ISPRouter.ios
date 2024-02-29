@@ -1,0 +1,24 @@
+! Set Hostname to ISP
+en
+conf t
+hostname ISP
+
+! Set IP Addresses on interfaces and turn them on (No Shut)
+int s0/0/0
+ip add 197.197.197.161 255.255.255.240
+clock rate 2000000
+!Set Bandwidth to 2000 Kilobits (Equal to 2000k)
+bandwidth 2000
+no shut
+!
+int f0/1
+ip add 198.198.198.198 255.255.255.248
+no shut
+! 
+int Lo0
+ip add 199.199.199.199 255.255.255.255
+exit
+
+! Create Defualt static route to Poughkeepsie Router
+ip route 0.0.0.0 0.0.0.0 197.197.197.162
+

@@ -1,0 +1,28 @@
+! Set Hosetname to AustinS1
+en
+conf t
+hostname AustinS1
+! Set IP address of switch and enable the interface
+int vlan 1
+ip add 192.168.90.130 255.255.255.240
+no shut
+
+! Assign Ports f0/11 and f0/12 to VLAN 1 and enable them
+int f0/11
+switchport mode access
+switchport access vlan 1
+no shut
+!
+int f0/12
+switchport mode access
+switchport access vlan 1
+no shut
+! Set Port f0/1 to trunking and enable it
+int f0/1
+switchport mode trunk
+no shut
+!
+exit
+! Set Default gateway to Austin Routers IP on the network (.129)
+ip default-gateway 192.168.90.129
+

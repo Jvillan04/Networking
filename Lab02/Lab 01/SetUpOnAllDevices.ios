@@ -1,0 +1,11 @@
+! Set this up on all devices
+en
+conf t
+enable secret cisco
+line con 0
+password cisco
+logg syn
+login
+line vty 0 4
+password cisco
+logg syn
