@@ -6,17 +6,17 @@ enable secret cisco
 
 ! Console Line Config
 line con 0
- logging synchronous
- password cisco
- login
+logging synchronous
+password cisco
+login
 
 ! VTY Line Config
 line vty 0 4
- logging synchronous
-  password cisco
- ! Login local uses the local username and password database (Putting `password cisco` is redundant)
- login local
- transport input ssh
+logging synchronous
+password cisco
+! Login local uses the local username and password database (Putting `password cisco` is redundant)
+login local
+transport input ssh
 exit
 
 ! Add user accounts for SSH access (ie. for the VTY lines)
@@ -44,3 +44,5 @@ ip domain-name inetlab.com
 crypto key generate rsa
 2048
 ip ssh version 2
+
+

@@ -5,9 +5,9 @@ enable secret cisco
 
 ! Console Line Config
 line con 0
- logging synchronous
- password cisco
- login
+logging synchronous
+password cisco
+login
 
 ! VTY Line Config
 line vty 0 4
