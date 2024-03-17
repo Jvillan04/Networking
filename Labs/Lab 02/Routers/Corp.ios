@@ -1,0 +1,144 @@
+en
+conf t
+hostname CorpRouter
+enable secret cisco
+
+! Line Config
+line con 0
+logg syn
+password cisco
+login
+
+! VTY Line Config
+line vty 0 4
+logg syn
+password cisco 
+username cisco password cisco
+! Custom User and Password on line VTY
+username jankarlo.villanueva secret fubar
+! Local Authentication 
+login local
+! Allow SSH only to VTY lines
+transport input ssh
+exit
+
+! Custom User and Password on Router
+username cisco
+password cisco
+username jankarlo.villanueva secret fubar
+
+! Interface configs -------------------------------------------------------------------------------------
+
+int s0/0/0
+ip add 192.168.169.2 255.255.255.0
+no shut
+! OSPF Authentication
+ip ospf message-digest-key 1 md5 cisco
+
+int s0/1/0
+ip add 172.16.33.1 255.255.255.0
+no shut
+! OSPF Authentication
+ip ospf message-digest-key 1 md5 cisco
+clock rate 2000000
+
+int s0/1/1
+ip add 172.16.34.1 255.255.255.0
+! OSPF Authentication
+ip ospf message-digest-key 1 md5 cisco
+no shut
+
+int g0/1
+ip add 172.16.32.1 255.255.255.0
+no shut
+
+! -------------------------------------------------------------------------------------------------------
+
+! OSPF -------------------------------------------------------------------------------------
+! Defualt Static Route to ISP (IP Address: 192.168.169.1)
+ip route 0.0.0.0 0.0.0.0 192.168.169.1
+
+router ospf 1
+! Default Route Injection
+default-information originate
+! Advertise the following networks into OSPF
+network 192.168.169.0 0.0.0.255 area 0
+network 172.16.32.0 0.0.0.255 area 0
+network 172.16.33.0 0.0.0.255 area 0
+network 172.16.34.0 0.0.0.255 area 0
+
+! Apply OSPF Authentication to OSPF area 0
+area 0 authentication message-digest
+
+! ----------------------------------------------------------------------------------------
+
+
+
+! Access Control Lists -------------------------------------------------------------------------------------
+
+! Construct an access list only allowing Corp-Mgmt (IP: 172.16.32.6/24) to SSH into Corp (IP: 172.16.32.1).   
+
+! Create an extended named ACL named SSH-Access and go into the ACL configuration mode
+ip access-list extended SSH-Access
+remark allow SSH from Corp-Mgmt PC only via SSH (Port 22)
+! 0.0.0.0 specifies this is a single host
+permit tcp 172.16.32.6 0.0.0.0 172.16.32.1 0.0.0.0 eq 22
+! Deny all other traffic
+deny ip any any
+
+! Apply this to the virtual terminal lines configured above in an inbound direction (Going into the router)
+line vty 0 4
+access-class SSH-Access in
+exit
+
+!----------------------------------------------------------------------------------------------------------
+
+!SSH
+ip domain-name inetlab.com
+crypto key generate rsa
+2048
+ip ssh version 2
+username cisco secret cisco
+exit
+
+! NTP
+! Syslog
+
+! Send Syslog messages to the Syslog Server (IP Address: 172.16.32.10)
+logging host 172.16.32.10
+
+! Timestamps on Syslog messages
+service timestamps log datetime msec
+
+! NTP -------------------------------------------------------------------------------------
+
+! Configure NTP server
+ntp 172.16.32.10
+
+! Enable NTP authentication
+ntp authenticate
+
+! Configure NTP authentication key
+ntp authentication-key 10 md5 cisco
+
+! Specify trusted NTP server
+ntp trusted 10
+
+! Configure NTP server with authentication key
+ntp server 172.16.32.10 key 10
+
+! Update system calendar with NTP time
+ntp update-calendar
+
+! -------------------------------------------------------------------------------------------
+
+
+! Syslog -------------------------------------------------------------------------------------
+
+! Send Syslog messages to the Syslog Server (IP Address: 172.16.32.10)
+logging host 172.16.32.10
+
+! Timestamps on Syslog messages
+service timestamps log datetime msec
+
+! -------------------------------------------------------------------------------------------

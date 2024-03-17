@@ -1,0 +1,66 @@
+en
+conf t
+hostname RemoteA
+enable secret cisco
+
+! Console Line Config
+line con 0
+logg syn
+password cisco
+login
+
+! VTY Line Config
+line vty 0 4
+logg syn
+password cisco 
+username cisco password cisco
+! Custom User and Password on line VTY
+username jankarlo.villanueva secret fubar
+! Local Authentication 
+login local
+! Allow SSH only to VTY lines
+transport input ssh
+exit
+
+! Custom User and Password on Router
+username cisco
+password cisco
+username jankarlo.villanueva secret fubar
+
+
+! Interface Config
+int s0/1/0
+ip add 172.16.33.2 255.255.255.0
+no shut
+ip ospf message-digest-key 1 md5 cisco
+
+int g0/1
+ip add 172.16.41.1 255.255.255.0
+no shut
+ip ospf message-digest-key 1 md5 cisco
+
+! OSPF 
+router ospf 1
+network 172.16.41.0 0.0.0.255 area 0
+network 172.16.33.0 0.0.0.255 area 0
+area 0 authentication message-digest
+
+! SSH
+ip domain-name inetlab.com
+crypto key generate rsa
+2048
+ip ssh version 2
+username cisco secret cisco
+
+! NTP
+
+ntp server 172.16.32.10
+ntp authenticate
+ntp authentication-key 10 md5 cisco
+ntp trusted 10
+ntp server 172.16.32.10 key 10
+ntp update-calendar
+
+! Syslog
+logging host 172.16.32.10
+service timestamps log datetime

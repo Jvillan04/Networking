@@ -1,0 +1,74 @@
+en
+conf t
+hostname RemoteB
+
+! Console Line Config
+line con 0
+ logging synchronous
+ password cisco
+ login
+
+! VTY Line Config
+line vty 0 4
+ logging synchronous
+  password cisco
+ ! Login local uses the local username and password database (Putting `password cisco` is redundant)
+ login local
+ transport input ssh
+exit
+
+! Add user accounts for SSH access (ie. for the VTY lines)
+username cisco password cisco
+username jankarlo.villanueva password fubar
+
+! interface addressing
+int g0/1
+ip add 172.16.42.1 255.255.255.0
+no shut
+! OSPF Authentication
+ip ospf message-digest-key 1 md5 cisco
+
+int s0/1/1
+ip add 172.16.34.2 255.255.255.0
+no shut
+! OSPF Authentication
+ip ospf message-digest-key 1 md5 cisco
+
+! Networking
+router ospf 1
+network 172.16.42.0 0.0.0.255 area 0
+network 172.16.34.0 0.0.0.255 area 0
+! Apply OSPF Authentication to OSPF area 0
+area 0 authentication message-digest
+
+
+!SSH
+ip domain-name inetlab.com
+crypto key generate rsa
+2048
+ip ssh version 2
+username cisco secret cisco
+
+! NTP
+! Configure NTP server
+ntp 172.16.32.10
+
+! Enable NTP authentication
+ntp authenticate
+
+! Configure NTP authentication key (Key ID: 10, Key: cisco)
+ntp authentication-key 10 md5 cisco
+
+! Specify trusted NTP server
+ntp trusted 10
+
+! Configure NTP server with authentication key
+ntp server 172.16.32.10 key 10
+
+! Update system calendar with NTP time
+ntp update-calendar
+
+
+! Syslog
+logging host 172.16.32.10
+service timestamps log datetime
