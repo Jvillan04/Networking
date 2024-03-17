@@ -1,51 +1,46 @@
 
-! a) Hostname
-!b) an encrypted privileged mode password of 'cisco' 
-! c) the IP Address and Subnet Mask of the interfaces in use 
-!d) enable the interfaces in use 
 en
 conf t
 hostname ISP 
-enable secret password cisco
+enable secret cisco
 
-! f) enable 'logging synchronous' on the console line 
-! g) password of 'cisco' on the console line 
+! Console Line Config
 line con 0
-logg syn
-password cisco
-! h) enable a login prompt to appear when consoling into the router from the PC 
-login
+ logging synchronous
+ password cisco
+ login
 
-! i) enable 'logging synchronous' on the first five virtual terminal lines 
-! j) password of 'cisco' on the first five virtual terminal lines
+! VTY Line Config
 line vty 0 4
-logg syn
-password cisco
-
-! k) enable a login prompt to appear when using the first five virtual terminal lines (ie: when you telnet or SSH into the router from the PC you should receive a login prompt) 
-! login local: Use the local username and password database for authentication.
-login local
-! the router should be able to be accessed via SSH only
-transport input ssh
+ logging synchronous
+  password cisco
+ ! Login local uses the local username and password database (Putting `password cisco` is redundant)
+ login local
+ transport input ssh
 exit
-username cisco
-password cisco
 
-username jankarlo.villanueva secret fubar
-! interfaces
+! Add user accounts for SSH access (ie. for the VTY lines)
+username cisco password cisco
+username jankarlo.villanueva password fubar
+
+
+! Interface config ---------------------------------------------------------------------------------------
 int g0/1
-ip add 192.168.168.1 255.255.255.0
-no shut
+ ip add 192.168.168.1 255.255.255.0
+ no shut
+
 int s0/0/0
-ip add 192.16.169.1 255.255.255.0
-no shut
-clock rate 2000000
-! Networking
+ ip add 192.168.169.1 255.255.255.0
+ no shut
+ clock rate 2000000
+
+! Networking (Default Route to CorpRouter's IP Address)
 ip route 0.0.0.0 0.0.0.0 192.168.169.2
-default-information originate
-!SSH
+
+! default-information originate
+
+!SSH ------------------------------------------------------------------------------------------------------
 ip domain-name inetlab.com
 crypto key generate rsa
 2048
 ip ssh version 2
-username cisco secret cisco

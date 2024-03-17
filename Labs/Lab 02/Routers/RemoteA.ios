@@ -3,64 +3,72 @@ conf t
 hostname RemoteA
 enable secret cisco
 
-! Console Line Config
+! Console Line Config 
 line con 0
-logg syn
-password cisco
-login
+ logging synchronous
+ password cisco
+ login
 
-! VTY Line Config
+! VTY Line Config 
 line vty 0 4
-logg syn
-password cisco 
-username cisco password cisco
-! Custom User and Password on line VTY
-username jankarlo.villanueva secret fubar
-! Local Authentication 
-login local
-! Allow SSH only to VTY lines
-transport input ssh
+ logging synchronous
+  password cisco
+ ! Login local uses the local username and password database (Putting `password cisco` is redundant)
+ login local
+ transport input ssh
 exit
 
-! Custom User and Password on Router
-username cisco
-password cisco
-username jankarlo.villanueva secret fubar
+! Add user accounts for SSH access (ie. for the VTY lines)
+username cisco password cisco
+username jankarlo.villanueva password fubar
 
 
-! Interface Config
+! Interface Config ---------------------------------------------------------------------------------
 int s0/1/0
 ip add 172.16.33.2 255.255.255.0
 no shut
+! OSPF Authentication
 ip ospf message-digest-key 1 md5 cisco
 
 int g0/1
 ip add 172.16.41.1 255.255.255.0
 no shut
+! OSPF Authentication
 ip ospf message-digest-key 1 md5 cisco
 
-! OSPF 
+! OSPF ----------------------------------------------------------------------------------------------
 router ospf 1
 network 172.16.41.0 0.0.0.255 area 0
 network 172.16.33.0 0.0.0.255 area 0
+! Apply OSPF Authentication to OSPF area 0
 area 0 authentication message-digest
+exit
 
-! SSH
+! SSH -----------------------------------------------------------------------------------------------
 ip domain-name inetlab.com
 crypto key generate rsa
 2048
 ip ssh version 2
-username cisco secret cisco
 
-! NTP
-
+! NTP -----------------------------------------------------------------------------------------------
+! Configure NTP server
 ntp server 172.16.32.10
+
+! Enable NTP authentication
 ntp authenticate
+
+! Configure NTP authentication key (Key ID: 10, Key: cisco)
 ntp authentication-key 10 md5 cisco
+
+! Specify trusted NTP server
 ntp trusted 10
+
+! Configure NTP server with authentication key
 ntp server 172.16.32.10 key 10
+
+! Update system calendar with NTP time
 ntp update-calendar
 
-! Syslog
+! Syslog ---------------------------------------------------------------------------------------------
 logging host 172.16.32.10
-service timestamps log datetime
+service timestamps log datetime msec 
