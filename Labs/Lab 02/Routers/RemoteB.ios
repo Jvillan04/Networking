@@ -1,6 +1,7 @@
 en
 conf t
 hostname RemoteB
+enable secret cisco
 
 ! Console Line Config
 line con 0

@@ -70,8 +70,9 @@ exit
 ! Create an extended named ACL named SSH-Access and go into the ACL configuration mode
 ip access-list extended SSH-Access
 remark allow SSH from Corp-Mgmt PC only via SSH (Port 22)
-! 0.0.0.0 specifies this is a single host
-permit tcp 172.16.32.6 0.0.0.0 172.16.32.1 0.0.0.0 eq 22
+! Allows SSH from Corp-Mgmt PC to any of Corp's IP addresses (Allow SSH to Device itself)
+! Use this since you are applying this to the VTY lines (Not the interfaces where the IP addresses are configured)
+permit tcp host 172.16.32.6  any eq 22
 ! Deny all other traffic
 deny ip any any
 
