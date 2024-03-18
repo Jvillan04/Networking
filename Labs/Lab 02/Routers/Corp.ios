@@ -31,15 +31,16 @@ ip ospf message-digest-key 1 md5 cisco
 
 int s0/1/0
 ip add 172.16.33.1 255.255.255.0
-no shut
 ! OSPF Authentication
 ip ospf message-digest-key 1 md5 cisco
 clock rate 2000000
+no shut
 
 int s0/1/1
 ip add 172.16.34.1 255.255.255.0
 ! OSPF Authentication
 ip ospf message-digest-key 1 md5 cisco
+clock rate 2000000
 no shut
 
 int g0/1
