@@ -62,7 +62,6 @@
 		"scope": "cisco",
 		"prefix": ["network"],
 		"body": [
-			"! Advertise additional networks into OSPF area 0",
 			"network $1 area 0"
 		],
 		"description": "Advertise more networks into OSPF"
@@ -99,4 +98,93 @@
 		"description": "Configure an interface"
 	},
 
+	"Server-based RADIUS AAA": {
+		"scope": "cisco",
+		"prefix": ["radius aaa", "radius server", "address ipv4", "key"],
+		"body": [
+			"! Enable AAA",
+			"aaa new-model",
+			"",
+			"! Create new RADIUS server config named `AAA` (Also brings you into config-radius-server mode)",
+			"radius server AAA",
+			"",
+			"! Specify the IPv4 Address of the RADIUS server (Corp-AAA-Server's IP address)",
+			"address ipv4 $1",
+			"",
+			"! Specify a key of ",
+			"key $2",
+			"",
+			"! Create authentication list",
+			"aaa authentication $3",
+		],
+		"description": "Server-based RADIUS AAA Configuration"
+	},
+
+	"SVI Configuration": {
+		"scope": "cisco",
+		"prefix": ["interface vlan", "vlan", "svi", "!SVI", "int vlan"],
+		"body": [
+			"interface vlan $1",
+			"ip address $2 $3",
+			"no shutdown"
+		],
+		"description": "Configure a Switched Virtual Interface (SVI)"
+	},
+
+	"User Account Setup": {
+		"scope": "cisco",
+		"prefix": ["username", "user", "account"],
+		"body": [
+			"! Create a new user account",
+			"username $1 secret $2",
+		],
+		"description": "Set up a user account"
+	},
+
+	"VLAN Configuration": {
+		"scope": "cisco",
+		"prefix": ["vlan"],
+		"body": [
+			"vlan $1",
+			"name $2"
+		],
+		"description": "Configure a VLAN"
+	},
+
+	"Switchport Mode Access": {
+		"scope": "cisco",
+		"prefix": ["switchport mode access"],
+		"body": [
+			"switchport mode access",
+			"switchport access vlan $1"
+		],
+		"description": "Set switchport mode to access VLAN"
+	},
+
+	"Console Line Configuration": {
+		"scope": "cisco",
+		"prefix": ["line con 0", "console"],
+		"body": [
+			"line con 0",
+			" password $1",
+			" logging synchronous",
+			" login"
+		],
+		"description": "Configure console line"
+	},
+
+	"VTY Line Configuration": {
+		"scope": "cisco",
+		"prefix": ["line vty 0 4", "vty"],
+		"body": [
+			"line vty 0 4",
+			" password $1",
+			" logging synchronous",
+			" login"
+		],
+		"description": "Configure VTY lines"
+	}
+
+
 }
+
