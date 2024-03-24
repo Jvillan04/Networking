@@ -1,0 +1,102 @@
+{
+	// Place your Networking workspace snippets here. Each snippet is defined under a snippet name and has a scope, prefix, body and 
+	// description. Add comma separated ids of the languages where the snippet is applicable in the scope field. If scope 
+	// is left empty or omitted, the snippet gets applied to all languages. The prefix is what is 
+	// used to trigger the snippet and the body will be expanded and inserted. Possible variables are: 
+	// $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders. 
+	// Placeholders with the same ids are connected.
+	// Example:
+	// "Print to console": {
+	// 	"scope": "javascript,typescript",
+	// 	"prefix": "log",
+	// 	"body": [
+	// 		"console.log('$1');",
+	// 		"$2"
+	// 	],
+	// 	"description": "Log output to console"
+
+		// Add your new snippets here
+
+	// "New Snippet": {
+	// 	"scope": "cisco",
+	// 	"prefix": ["new"],
+	// 	"body": [
+	// 		"// Your new snippet code goes here"
+	// 	],
+	// 	"description": "Description of your new snippet"
+	// }
+
+	
+
+	"SSH": {
+		"scope": "cisco",
+		"prefix": ["ssh", "ip domain-name","!SSH"],
+		"body": [
+				"!SSH",
+				"ip domain-name inetlab.com",
+				"crypto key generate rsa",
+				"2048",
+				"ip ssh version 2",
+			],
+			"description": "Configure SSH"
+	
+	},
+
+
+
+	"OSPF": {
+		"scope": "cisco",
+		"prefix": ["router ospf 1", "ospf"],
+		"body": [	
+				"! OSPF Configuration",
+				"router ospf 1",
+				"! Advertise the following networks into OSPF area 0",
+				"network $1 area 0",
+				"! Apply OSPF Authentication to OSPF area 0",
+				"area 0 authentication message-digest"
+		],
+		"description": "OSPF Configuration"
+	},
+
+	"More Network Advertisements": {
+		"scope": "cisco",
+		"prefix": ["network"],
+		"body": [
+			"! Advertise additional networks into OSPF area 0",
+			"network $1 area 0"
+		],
+		"description": "Advertise more networks into OSPF"
+	},
+	
+	"Default Route Injection": {
+		"scope": "cisco",
+		"prefix": ["default-information originate"],
+		"body": [
+			"default-information originate"
+		],
+		"description": "Inject a default route into OSPF"
+	},
+
+	"Hostname": {
+		"scope": "cisco",
+		"prefix": ["en", "conf t", "hostname"],
+		"body": [
+			"en",
+			"conf t",
+			"hostname $1"
+		],
+		"description": "Set hostname"
+	},
+
+	"Interface Configuration": {
+		"scope": "cisco",
+		"prefix": ["interface", "int"],
+		"body": [
+			"int $1",
+			"ip address $2 $3",
+			"no shutdown"
+		],
+		"description": "Configure an interface"
+	},
+
+}
