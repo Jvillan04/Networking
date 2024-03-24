@@ -1,0 +1,46 @@
+en
+conf t
+hostname Rogue-Retail
+enable secret cisco
+
+! Interface Configuration
+int s0/2/1
+ip add 192.168.200.10 255.255.255.252
+! OSPF Authentication
+ip ospf message-digest-key 1 md5 cisco
+no shut
+
+int g0/0/1
+ip add 192.168.203.1 255.255.255.0
+! OSPF Authentication
+ip ospf message-digest-key 1 md5 cisco
+no shut
+
+! Line Config
+line con 0
+ password cisco
+ logging synchronous
+ login
+line vty 0 4
+ password cisco
+ logging synchronous
+ login
+
+exit
+
+
+! Enable an MOTD Banner 
+banner motd # UNAUTHORIZED ACCESS STRICTLY PROHIBITED!!!#
+
+! Service passwrord-encryption
+service password-encryption
+
+! OSPF Configuration
+router ospf 1
+! Advertise the following networks into OSPF area 0
+network 192.168.200.8 0.0.0.3 area 0
+network 192.168.203.0 0.0.0.255 area 0
+! Apply OSPF Authentication to OSPF area 0
+area 0 authentication message-digest
+exit
+

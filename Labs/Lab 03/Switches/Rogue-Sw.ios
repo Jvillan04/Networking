@@ -1,0 +1,31 @@
+en
+conf t
+hostname Rogue-Sw
+enable secret cisco
+
+! Adminissrative Interface
+int vlan 1
+ip address 192.168.203.2 255.255.255.0
+no shut
+
+! Defualt Gateway
+ip default-gateway 192.168.203.1
+
+! Line Config
+line con 0
+ password cisco
+ logging synchronous
+ login
+line vty 0 4
+ password cisco
+ logging synchronous
+ login
+
+exit
+
+
+! Enable an MOTD Banner 
+banner motd # UNAUTHORIZED ACCESS STRICTLY PROHIBITED!!!#
+
+! Service passwrord-encryption
+service password-encryption

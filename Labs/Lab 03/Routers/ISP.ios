@@ -1,0 +1,36 @@
+en
+conf t
+hostname ISP
+enable secret cisco
+
+! Interface Configuration
+int s0/1/0
+ip add 200.16.15.1 255.255.255.0
+clock rate 2000000
+no shut
+
+int g0/0/1
+ip add 200.16.16.1 255.255.255.0
+no shut
+
+! Line Config
+line con 0
+ logging synchronous
+ login
+line vty 0 4
+ logging synchronous
+ login
+
+exit
+
+! Enable an MOTD Banner 
+banner motd # UNAUTHORIZED ACCESS STRICTLY PROHIBITED!!!#
+
+! Service passwrord-encryption
+service password-encryption
+
+! OSPF Configuration
+! Defualt Static Route to Corp-Edge (IP Address: 200.16.15.2)
+ip route 0.0.0.0 0.0.0.0 200.16.15.2
+
+

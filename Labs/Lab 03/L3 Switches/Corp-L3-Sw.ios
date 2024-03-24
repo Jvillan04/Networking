@@ -1,0 +1,113 @@
+en
+conf t
+hostname Corp-L3-Sw
+enable secret cisco
+
+!Enable IP routing
+ip routing
+
+! Line Config
+line con 0
+ password cisco
+ logging synchronous
+ login
+line vty 0 4
+ password cisco
+ logging synchronous
+ login
+
+exit
+
+! Enable an MOTD Banner 
+banner motd # UNAUTHORIZED ACCESS STRICTLY PROHIBITED!!!#
+
+! Service passwrord-encryption
+service password-encryption
+
+! Interface configuration
+int g1/0/1
+! Make it a routed port
+no switchport
+ip add 172.16.4.2 255.255.255.252
+! OSPF Authentication
+ip ospf message-digest-key 1 md5 cisco
+no shut
+
+int g1/0/2
+! Make it a routed port
+no switchport
+ip add 172.16.4.5 255.255.255.252
+! OSPF Authentication
+ip ospf message-digest-key 1 md5 cisco
+no shut
+
+! Create VLANs 5, 6, 7, and 10
+vlan 5
+name HR
+
+vlan 6
+name Mgmt
+
+vlan 7
+name Rogue
+
+vlan 10
+name Servers
+
+! Layer 3 interfaces (SVIs) for VLANs 5, 6, 7, and 10
+!Assign SVI ip as defuaLt gateway ip for each VLAN
+int vlan 5
+ip add 172.16.5.1 255.255.255.0
+! OSPF Authentication
+ip ospf message-digest-key 1 md5 cisco
+no shut
+
+int vlan 6
+ip add 172.16.6.1 255.255.255.0
+! OSPF Authentication
+ip ospf message-digest-key 1 md5 cisco
+no shut
+
+int vlan 7
+ip add 172.16.7.1 255.255.255.0
+! OSPF Authentication
+ip ospf message-digest-key 1 md5 cisco
+no shut
+
+int vlan 10
+ip add 172.100.10.1 255.255.255.0
+! OSPF Authentication
+ip ospf message-digest-key 1 md5 cisco
+no shut 
+
+! Apply VLANs to switch ports
+int g1/0/5
+switchport mode access
+switchport access vlan 5
+
+int g1/0/6
+switchport mode access
+switchport access vlan 6
+
+int g1/0/7
+switchport mode access
+switchport access vlan 7
+
+int g1/0/10
+switchport mode access
+switchport access vlan 10
+
+
+! OSPF Configuration
+router ospf 1
+! Advertise the following networks into OSPF area 0
+network 172.16.4.0 0.0.0.3 area 0
+network 172.16.4.4 0.0.0.3 area 0
+network 172.16.5.0 0.0.0.255 area 0
+network 172.16.6.0 0.0.0.255 area 0
+network 172.16.7.0 0.0.0.255 area 0
+network 172.100.10.0 0.0.0.255 area 0
+! Apply OSPF Authentication to OSPF area 0
+area 0 authentication message-digest
+exit
+

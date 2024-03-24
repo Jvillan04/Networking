@@ -1,0 +1,40 @@
+! Paste into every network device that supports this configuration
+
+conf t
+! Create local user accounts
+username cisco secret cisco
+username jankarlo.villanueva secret fubar
+
+! Set up local authentication on line vty
+line vty 0 4
+login local
+! Restrict access to SSH only
+transport input ssh
+
+!SSH
+ip domain-name inetlab.com
+crypto key generate rsa
+2048
+ip ssh version 2
+
+
+
+! ACL Configuration
+
+! Construct an access list only allowing Corp-Mgmt (IP: 172.16.6.6/24) to SSH into device
+! Create an extended named ACL named SSH-Access and go into the ACL configuration mode
+ip access-list extended SSH-Access
+remark allow SSH from Corp-Mgmt PC only via SSH (Port 22)
+! Allows SSH from Corp-Mgmt PC to any of Corp's IP addresses (Allow SSH to Device itself)
+permit tcp host 172.16.6.6 any eq 22
+! Deny all other traffic
+deny ip any any
+
+! Apply this to the virtual terminal lines configured above in an inbound direction (Going into the router)
+line vty 0 4
+access-class SSH-Access in
+exit
+
+! verify the ACL
+! ssh -l cisco <IP Address of the device> 
+! ssh -l cisco 
