@@ -15,6 +15,7 @@ no shut
 
 ! Line Config
 line con 0
+ password cisco
  logging synchronous
  login
 line vty 0 4

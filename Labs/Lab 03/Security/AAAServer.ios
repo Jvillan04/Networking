@@ -1,0 +1,21 @@
+! Paste this configuration on every network device that supports it.
+
+conf t 
+! Enable AAA
+aaa new-model
+! Create new RADIUS server config named `AAA` (Also brings you into config-radius-server mode)
+radius server AAA
+! Specify the IPv4 Address of the RADIUS server (Corp-AAA-Server's IP address)
+address ipv4 172.100.10.10
+! Specify a key of CMPT420
+key CMPT420
+! Create authentication list
+aaa authentication login default group radius local
+! Add it the vty and console lines
+line vty 0 4
+login authentication default
+line con 0
+login authentication default
+
+
+

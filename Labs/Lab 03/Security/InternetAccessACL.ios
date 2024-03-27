@@ -1,0 +1,22 @@
+! Step 13 of lab, apply this to interface s0/1/0 on Corp-Edge Router
+
+! More on this in chapter 8.3.7 in NetAcad
+
+! NOTE: This prevents pings from working, since ICMP is not allowed (This is good security-wise). However you can still access websites on the internet via HTTP.
+
+
+
+! Create an ACL to restrict internet access to HTTP connectivity to the internet 
+ip access-list extended INTERNET-ACCESS
+permit tcp any any eq 80
+remark Allow HTTP traffic to the internet
+
+! Create an ACL to permit return HTTP traffic from requested websites (established connections)  using the `established` keyword   
+ip access-list extended RESPONSE-TRAFFIC
+permit tcp any any established
+remark Allow return HTTP traffic from requested websites
+
+! Apply the ACL to the inside interface in the inbound direction.
+int s0/1/0
+ip access-group INTERNET-ACCESS out
+ip access-group RESPONSE-TRAFFIC in

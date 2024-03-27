@@ -1,0 +1,27 @@
+! Step 12 on lab, this is an ACL to secure the AAA Server
+
+! Create an extended named ACL named AAA-Access and go into the ACL configuration mode
+ip access-list extended AAA-Access
+
+! Permit the following networks to access the AAA Server
+! using 0.0.0.255 to allow the entire subnet (Network) with the /24 mask
+! using 0.0.0.3 for the entire /30 subnets
+permit ip 172.16.5.0 0.0.0.255 host 172.100.10.10
+permit ip 172.16.6.0 0.0.0.255 host 172.100.10.10
+permit ip 172.16.7.0 0.0.0.255 host 172.100.10.10
+permit ip 172.16.4.0 0.0.0.3 host 172.100.10.10
+permit ip 172.16.4.4 0.0.0.3 host 172.100.10.10
+permit ip 192.168.200.0 0.0.0.3 host 172.100.10.10
+permit ip 192.168.200.4 0.0.0.3 host 172.100.10.10
+permit ip 192.168.201.0 0.0.0.255 host 172.100.10.10
+permit ip 192.168.202.0 0.0.0.255 host 172.100.10.10
+permit ip 200.16.15.0 0.0.0.255 host 172.100.10.10
+permit ip 200.16.16.0 0.0.0.255 host 172.100.10.10
+
+! Deny all other traffic 
+deny ip any any
+
+! Aplly the ACL to the interface vlan 10 in an outbound direction
+int vlan 10
+ip access-group AAA-Access out
+
