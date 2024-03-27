@@ -9,11 +9,13 @@
 ! Create an ACL to restrict internet access to HTTP connectivity to the internet 
 ip access-list extended INTERNET-ACCESS
 permit tcp any any eq 80
+deny ip any any
 remark Allow HTTP traffic to the internet
 
 ! Create an ACL to permit return HTTP traffic from requested websites (established connections)  using the `established` keyword   
 ip access-list extended RESPONSE-TRAFFIC
 permit tcp any any established
+deny ip any any
 remark Allow return HTTP traffic from requested websites
 
 ! Apply the ACL to the inside interface in the inbound direction.
