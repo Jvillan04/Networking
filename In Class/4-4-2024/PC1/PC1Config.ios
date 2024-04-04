@@ -1,0 +1,59 @@
+! This config is for a CISCO ASA 5505 series firewall
+! Commands for this device are different compared to others
+
+! This firewall is not routed so ip addresses will need to be on vlan interfaces
+
+! Set on e0/0
+int e0/0
+no shut
+switchport mode access
+switchport access vlan 100
+
+interface vlan 100
+ip address 172.16.100.2 255.255.255.0
+no shutdown
+! Set interface vlan 100 name to 'outside'
+! Using 'outside' name sets the security level to 0 automatically
+nameif outside
+
+! Set on e0/1
+int e0/1
+no shut
+switchport mode access
+switchport access vlan 47
+
+interface vlan 47
+ip address  192.168.47.1 255.255.255.0
+no shutdown
+! Set interface vlan 47 name to 'inside'
+! Using 'inside' name sets the security level to 100 automatically
+nameif inside
+
+! DHCP (These devices have DHCP)
+! Enable DHCP daemon with 'dhcpd'
+
+! Set a range of 32 addresses on the inside interface
+dhcpd address 192.168.47.10-192.168.47.41 inside
+
+!Set DHCP dns server
+dhcpd dns 8.8.8.8
+
+! Set dhcp lease time to 3600 seconds (1 hour)
+dhcpd lease 3600
+
+! Enable the DHCP config on the inside interface
+dhcpd enable inside
+
+! Add defualt static route to Wireless Router (WR)
+route outside 0.0.0.0 0.0.0.0 172.16.100.1
+
+
+! NAT
+! Use NAT on whatever IP address is assigned to the interface connected to the outside vlan
+global (outside) 1 interface
+! Define the inside network address being translated
+nat (inside) 1 192.168.47.0 255.255.255.0
+
+! Show ip nat translations
+sh xlate
+
