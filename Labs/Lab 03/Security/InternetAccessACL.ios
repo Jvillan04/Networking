@@ -12,6 +12,7 @@ permit tcp any any eq 80
 deny ip any any
 remark Allow HTTP traffic to the internet
 
+! Example of ACL with 'established' keyword in NetAcad Chapter 8.3.7
 ! Create an ACL to permit return HTTP traffic from requested websites (established connections)  using the `established` keyword   
 ip access-list extended RESPONSE-TRAFFIC
 permit tcp any any established
@@ -22,3 +23,7 @@ remark Allow return HTTP traffic from requested websites
 int s0/1/0
 ip access-group INTERNET-ACCESS out
 ip access-group RESPONSE-TRAFFIC in
+
+! NOTE: For the INTERNET-ACCESS ACL, it was placed in s0/1/0 since that interface is the one that connects to the internet. 
+! and it is not placed in the inside interface in order to not block any traffic that would be useful such as OSPF which would be blocked by the ACL.
+
