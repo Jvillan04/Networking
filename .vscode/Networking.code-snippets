@@ -187,7 +187,7 @@
 
 	"Subnet Mask /24": {
 		"scope": "cisco",
-		"prefix": ["/24"],
+		"prefix": ["/24", "s24"],
 		"body": [
 			"255.255.255.0"
 		],
@@ -195,7 +195,7 @@
 	},
 	"Subnet Mask /25": {
 		"scope": "cisco",
-		"prefix": ["/25"],
+		"prefix": ["/25", "s25"],
 		"body": [
 			"255.255.255.128"
 		],
@@ -203,7 +203,7 @@
 	},
 	"Subnet Mask /26": {
 		"scope": "cisco",
-		"prefix": ["/26"],
+		"prefix": ["/26", "s26"],
 		"body": [
 			"255.255.255.192"
 		],
@@ -211,7 +211,7 @@
 	},
 	"Subnet Mask /27": {
 		"scope": "cisco",
-		"prefix": ["/27"],
+		"prefix": ["/27", "s27"],
 		"body": [
 			"255.255.255.224"
 		],
@@ -219,7 +219,7 @@
 	},
 	"Subnet Mask /28": {
 		"scope": "cisco",
-		"prefix": ["/28"],
+		"prefix": ["/28", "s28"],
 		"body": [
 			"255.255.255.240"
 		],
@@ -227,7 +227,7 @@
 	},
 	"Subnet Mask /29": {
 		"scope": "cisco",
-		"prefix": ["/29"],
+		"prefix": ["/29", "s29"],
 		"body": [
 			"255.255.255.248"
 		],
@@ -235,7 +235,7 @@
 	},
 	"Subnet Mask /30": {
 		"scope": "cisco",
-		"prefix": ["/30"],
+		"prefix": ["/30", "s30"],
 		"body": [
 			"255.255.255.252"
 		],
@@ -243,7 +243,7 @@
 	},
 	"Subnet Mask /31": {
 		"scope": "cisco",
-		"prefix": ["/31"],
+		"prefix": ["/31", "s31"],
 		"body": [
 			"255.255.255.254"
 		],
@@ -251,7 +251,7 @@
 	},
 	"Subnet Mask /32": {
 		"scope": "cisco",
-		"prefix": ["/32"],
+		"prefix": ["/32", "s32"],
 		"body": [
 			"255.255.255.255"
 		],
