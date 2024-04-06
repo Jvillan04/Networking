@@ -183,8 +183,82 @@
 			" login"
 		],
 		"description": "Configure VTY lines"
+	},
+
+	"Subnet Mask /24": {
+		"scope": "cisco",
+		"prefix": ["/24"],
+		"body": [
+			"255.255.255.0"
+		],
+		"description": "Subnet Mask /24"
+	},
+	"Subnet Mask /25": {
+		"scope": "cisco",
+		"prefix": ["/25"],
+		"body": [
+			"255.255.255.128"
+		],
+		"description": "Subnet Mask /25"
+	},
+	"Subnet Mask /26": {
+		"scope": "cisco",
+		"prefix": ["/26"],
+		"body": [
+			"255.255.255.192"
+		],
+		"description": "Subnet Mask /26"
+	},
+	"Subnet Mask /27": {
+		"scope": "cisco",
+		"prefix": ["/27"],
+		"body": [
+			"255.255.255.224"
+		],
+		"description": "Subnet Mask /27"
+	},
+	"Subnet Mask /28": {
+		"scope": "cisco",
+		"prefix": ["/28"],
+		"body": [
+			"255.255.255.240"
+		],
+		"description": "Subnet Mask /28"
+	},
+	"Subnet Mask /29": {
+		"scope": "cisco",
+		"prefix": ["/29"],
+		"body": [
+			"255.255.255.248"
+		],
+		"description": "Subnet Mask /29"
+	},
+	"Subnet Mask /30": {
+		"scope": "cisco",
+		"prefix": ["/30"],
+		"body": [
+			"255.255.255.252"
+		],
+		"description": "Subnet Mask /30"
+	},
+	"Subnet Mask /31": {
+		"scope": "cisco",
+		"prefix": ["/31"],
+		"body": [
+			"255.255.255.254"
+		],
+		"description": "Subnet Mask /31"
+	},
+	"Subnet Mask /32": {
+		"scope": "cisco",
+		"prefix": ["/32"],
+		"body": [
+			"255.255.255.255"
+		],
+		"description": "Subnet Mask /32"
 	}
 
+	
 
 }
 
