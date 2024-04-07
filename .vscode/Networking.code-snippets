@@ -62,14 +62,14 @@
 		"scope": "cisco",
 		"prefix": ["network"],
 		"body": [
-			"network $1 area 0"
+			"network $1 $2 area 0"
 		],
 		"description": "Advertise more networks into OSPF"
 	},
 	
 	"Default Route Injection": {
 		"scope": "cisco",
-		"prefix": ["default-information originate"],
+		"prefix": ["default-information originate", "default route", "defr"],
 		"body": [
 			"default-information originate"
 		],
@@ -78,7 +78,7 @@
 
 	"Hostname": {
 		"scope": "cisco",
-		"prefix": ["en", "conf t", "hostname"],
+		"prefix": ["en", "hostname"],
 		"body": [
 			"en",
 			"conf t",
@@ -92,8 +92,8 @@
 		"prefix": ["interface", "int"],
 		"body": [
 			"int $1",
-			"ip address $2 $3",
-			"no shutdown"
+			"ip add $2 $3",
+			"no shut"
 		],
 		"description": "Configure an interface"
 	},
@@ -342,6 +342,39 @@
 		],
 		"description": "Wildcard Mask /30"
 	},
+
+	"Copy Running Config to Startup Config": {
+		"scope": "cisco",
+		"prefix": ["cop", "coprst"],
+		"body": [
+			"cop r st"
+		],
+		"description": "Copy Running Config to Startup Config"
+	},
+
+	"Extended Named ACL":{
+		"scope": "cisco",
+		"prefix": ["exacl" ],
+		"body": [
+			"!Create an extended named ACL",
+			"ip access-list extended $1",
+		
+		],
+		"description": "Create an Extended ACL"
+	},
+
+
+	"Standard Named ACL":{
+		"scope": "cisco",
+		"prefix": ["sacl" ],
+		"body": [
+			"!Create a standard named ACL",
+			"ip access-list standard $1",
+		
+		],
+		"description": "Create a standard ACL"
+	},
+	
 
 
 
