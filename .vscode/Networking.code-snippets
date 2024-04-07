@@ -262,6 +262,7 @@
 		"scope": "cisco",
 		"prefix": ["NAT and PAT", "natandpat", "natpat"],
 		"body": [
+			"!Configure NAT and PAT",
 			"PUBLIC-NAT-POOL $1 $2 netmask $3",
 			"! Make a standard ACL and name it NAT-ACL",
 			"ip access-list standard NAT-ACL",
