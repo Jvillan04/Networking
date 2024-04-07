@@ -336,7 +336,7 @@
 
 	"/30 Wildcard Mask": {
 		"scope": "cisco",
-		"prefix": ["w"],
+		"prefix": ["w30"],
 		"body": [
 			"0.0.0.3"
 		],
