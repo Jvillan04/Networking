@@ -124,9 +124,9 @@
 		"scope": "cisco",
 		"prefix": ["interface vlan", "vlan", "svi", "!SVI", "int vlan"],
 		"body": [
-			"interface vlan $1",
-			"ip address $2 $3",
-			"no shutdown"
+			"int vlan $1",
+			"ip add $2 $3",
+			"no shut"
 		],
 		"description": "Configure a Switched Virtual Interface (SVI)"
 	},
@@ -394,6 +394,16 @@
 			"ip route 0.0.0.0 0.0.0.0 $1"
 		],
 		"description": "Defualt Static Route"
+	},
+
+	"Default Gateway":{
+		"scope":"cisco",
+		"prefix": ["default gateway", "defgw", "defgate"],
+		"body": [
+			"!Set the Default Gateway to <Router IP>",
+			"ip default-gateway $1"
+		],
+		"description": "Set the Default Gateway"
 	},
 	
 }

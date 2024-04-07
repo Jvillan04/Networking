@@ -1,0 +1,38 @@
+en
+conf t
+hostname ISP-Sw
+enable secret cisco
+
+! Configure the management interface
+int vlan 1
+ip add 200.16.16.2 255.255.255.0
+no shut
+exit
+
+!Set the Default Gateway 
+ip default-gateway 200.16.16.1
+
+line con 0
+ password cisco
+ logging synchronous
+ login
+line vty 0 4
+ password cisco
+ logging synchronous
+ login
+exit
+
+!SSH
+ip domain-name inetlab.com
+crypto key generate rsa
+2048
+ip ssh version 2
+
+! Enable an MOTD Banner
+banner motd #UNAUTHORIZED ACCESS STRICTLY PROHIBITED!!!#
+
+! Enable Service Password Encryption
+service password-encryption
+
+cop r st
+
