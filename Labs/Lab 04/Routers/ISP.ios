@@ -55,5 +55,3 @@ cop r st
 ! OSPF Configuration
 ! Defualt Static Route to Corp-Edge (IP Address: 200.16.15.2)
 ip route 0.0.0.0 0.0.0.0 200.16.15.2
-
-

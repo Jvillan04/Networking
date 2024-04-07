@@ -187,7 +187,7 @@
 
 	"Subnet Mask /24": {
 		"scope": "cisco",
-		"prefix": ["/24", "s24"],
+		"prefix": ["/24", "s24", ".24"],
 		"body": [
 			"255.255.255.0"
 		],
@@ -195,7 +195,7 @@
 	},
 	"Subnet Mask /25": {
 		"scope": "cisco",
-		"prefix": ["/25", "s25"],
+		"prefix": ["/25", "s25", ".25"],
 		"body": [
 			"255.255.255.128"
 		],
@@ -203,7 +203,7 @@
 	},
 	"Subnet Mask /26": {
 		"scope": "cisco",
-		"prefix": ["/26", "s26"],
+		"prefix": ["/26", "s26", ".26"],
 		"body": [
 			"255.255.255.192"
 		],
@@ -211,7 +211,7 @@
 	},
 	"Subnet Mask /27": {
 		"scope": "cisco",
-		"prefix": ["/27", "s27"],
+		"prefix": ["/27", "s27", ".27"],
 		"body": [
 			"255.255.255.224"
 		],
@@ -219,7 +219,7 @@
 	},
 	"Subnet Mask /28": {
 		"scope": "cisco",
-		"prefix": ["/28", "s28"],
+		"prefix": ["/28", "s28", ".28"],
 		"body": [
 			"255.255.255.240"
 		],
@@ -227,7 +227,7 @@
 	},
 	"Subnet Mask /29": {
 		"scope": "cisco",
-		"prefix": ["/29", "s29"],
+		"prefix": ["/29", "s29", ".29"],
 		"body": [
 			"255.255.255.248"
 		],
@@ -235,7 +235,7 @@
 	},
 	"Subnet Mask /30": {
 		"scope": "cisco",
-		"prefix": ["/30", "s30"],
+		"prefix": ["/30", "s30", ".30"],
 		"body": [
 			"255.255.255.252"
 		],
@@ -243,7 +243,7 @@
 	},
 	"Subnet Mask /31": {
 		"scope": "cisco",
-		"prefix": ["/31", "s31"],
+		"prefix": ["/31", "s31", ".31"],
 		"body": [
 			"255.255.255.254"
 		],
@@ -251,14 +251,34 @@
 	},
 	"Subnet Mask /32": {
 		"scope": "cisco",
-		"prefix": ["/32", "s32"],
+		"prefix": ["/32", "s32", ".32"],
 		"body": [
 			"255.255.255.255"
 		],
 		"description": "Subnet Mask /32"
-	}
+	},
 
+	"NAT and PAT": {
+		"scope": "cisco",
+		"prefix": ["NAT and PAT", "natandpat", "natpat"],
+		"body": [
+			"PUBLIC-NAT-POOL $1 $2 netmask $3",
+			"! Make a standard ACL and name it NAT-ACL",
+			"ip access-list standard NAT-ACL",
+			"! Add a description",
+			"remark this is used for outbound NAT and PAT",
+			"! Define the network that will be NATed <NetAddr> <Wildcard Mask>",
+			"permit $4 $5",
+			"! Deny everything else ",
+			"deny any",
+			"! Apply NAT and PAT to interface (Reference the ACL named 'NAT-ACL')",
+			"ip nat inside source list NAT-ACL int $6 overload",
+			"! implement NAT and PAT by referencing NAT-ACL as the ip addresses to be NATed and PATed and PUBLIC-NAT-POOL as the pool of public ip addresses that these addresses will be translated to",
+			"ip nat inside source list NAT-ACL pool PUBLIC-NAT-POOL overload"
+		],
+		"description": "Configure NAT and PAT"
+	},
 	
 
-}
 
+}
