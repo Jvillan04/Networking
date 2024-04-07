@@ -45,6 +45,7 @@ banner motd # UNAUTHORIZED ACCESS STRICTLY PROHIBITED!!!#
 ! Service passwrord-encryption
 service password-encryption
 
+cop r st
 
 !--------------------------------------------------------------------------------------------------------------------------
 ! Configure After Everything is Done
