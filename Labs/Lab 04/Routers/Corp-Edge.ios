@@ -1,0 +1,56 @@
+en
+conf t
+hostname Corp-Edge
+enable secret cisco
+
+! Interface Configuration
+int s0/1/0
+ip add 200.16.15.2 255.255.255.0
+no shut
+
+int g0/0/1
+ip add 172.16.4.1 255.255.255.252
+! OSPF Authentication
+ip ospf message-digest-key 1 md5 cisco
+no shut
+
+! Line Config
+line con 0
+ password cisco
+ logging synchronous
+ login
+line vty 0 4
+ password cisco
+ logging synchronous
+ login
+
+exit
+
+! Enable an MOTD Banner 
+banner motd # UNAUTHORIZED ACCESS STRICTLY PROHIBITED!!!#
+
+! Service passwrord-encryption
+service password-encryption
+
+
+
+
+!--------------------------------------------------------------------------------------------------------------------------
+! Configure After Everything is Done
+! Use this as a test case for step 5 to display the routing table
+!--------------------------------------------------------------------------------------------------------------------------
+
+
+! OSPF Configuration
+! Defualt Static Route to ISP (IP Address: 200.16.15.1)
+ip route 0.0.0.0 0.0.0.0 200.16.15.1
+
+router ospf 1
+! Default Route Injection
+default-information originate
+! Advertise the following networks into OSPF area 0
+network 172.16.4.0 0.0.0.3 area 0
+! Apply OSPF Authentication to OSPF area 0
+area 0 authentication message-digest
+exit
+

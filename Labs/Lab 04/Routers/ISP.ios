@@ -1,0 +1,58 @@
+en
+conf t
+hostname ISP
+enable secret cisco
+
+! Interface Configuration
+int s0/1/0
+ip add 200.16.15.1 255.255.255.0
+clock rate 2000000
+no shut
+
+int g0/0/1
+ip add 200.16.16.1 255.255.255.0
+no shut
+
+! Loopback address
+int Lo0
+ip add 192.168.200.1 255.255.255.255
+
+! Line Config
+line con 0
+ password cisco
+ logging synchronous
+ login
+line vty 0 4
+ logging synchronous
+ login
+ transport input ssh
+ login local
+exit
+
+! User Configuration
+! Create a new user account for local authentication
+username cisco secret cisco
+
+!SSH
+ip domain-name inetlab.com
+crypto key generate rsa
+2048
+ip ssh version 2
+
+! Enable an MOTD Banner 
+banner motd # UNAUTHORIZED ACCESS STRICTLY PROHIBITED!!!#
+
+! Service passwrord-encryption
+service password-encryption
+
+
+!--------------------------------------------------------------------------------------------------------------------------
+! Configure After Everything is Done
+! Use this as a test case for step 5 to display the routing table
+!--------------------------------------------------------------------------------------------------------------------------
+
+! OSPF Configuration
+! Defualt Static Route to Corp-Edge (IP Address: 200.16.15.2)
+ip route 0.0.0.0 0.0.0.0 200.16.15.2
+
+
