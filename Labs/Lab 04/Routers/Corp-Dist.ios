@@ -8,6 +8,9 @@ int g0/0/1
 ip add 172.16.4.6 255.255.255.252
 no shut
 
+int Lo0
+ip add 192.168.100.3 255.255.255.255
+
 ! Line Config
 line con 0
  password cisco
@@ -17,9 +20,18 @@ line vty 0 4
  password cisco
  logging synchronous
  login
-
+ login local
 exit
 
+! User Configuration
+! Create a new user account
+username cisco secret cisco
+
+!SSH
+ip domain-name inetlab.com
+crypto key generate rsa
+2048
+ip ssh version 2
 
 ! Enable an MOTD Banner 
 banner motd # UNAUTHORIZED ACCESS STRICTLY PROHIBITED!!!#
@@ -27,6 +39,7 @@ banner motd # UNAUTHORIZED ACCESS STRICTLY PROHIBITED!!!#
 ! Service passwrord-encryption
 service password-encryption
 
+cop r st
 
 ! No OSPF on this device ¯\_(ツ)_/¯
 

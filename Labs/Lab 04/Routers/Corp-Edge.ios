@@ -14,6 +14,9 @@ ip add 172.16.4.1 255.255.255.252
 ip ospf message-digest-key 1 md5 cisco
 no shut
 
+int Lo0
+ip add 192.168.100.1 255.255.255.255
+
 ! Line Config
 line con 0
  password cisco
@@ -23,8 +26,13 @@ line vty 0 4
  password cisco
  logging synchronous
  login
-
+ login local
 exit
+
+! User Configuration
+! Create a new user account
+username cisco secret cisco
+
 
 ! Enable an MOTD Banner 
 banner motd # UNAUTHORIZED ACCESS STRICTLY PROHIBITED!!!#
