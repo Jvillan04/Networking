@@ -15,8 +15,17 @@ line vty 0 4
  password cisco
  logging synchronous
  login
-
+ login local
 exit
+
+! Create a new user account
+username cisco secret cisco
+
+!SSH
+ip domain-name inetlab.com
+crypto key generate rsa
+2048
+ip ssh version 2
 
 ! Enable an MOTD Banner 
 banner motd # UNAUTHORIZED ACCESS STRICTLY PROHIBITED!!!#
@@ -40,6 +49,9 @@ ip add 172.16.4.5 255.255.255.252
 ! OSPF Authentication
 ip ospf message-digest-key 1 md5 cisco
 no shut
+
+int Lo0
+ip add 192.168.100.2 255.255.255.255
 
 ! Create VLANs 5, 6, 7, and 10
 vlan 5

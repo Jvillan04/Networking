@@ -374,9 +374,26 @@
 		],
 		"description": "Create a standard ACL"
 	},
+
+	"MOTD Banner":{
+		"scope":"cisco",
+		"prefix": ["motd"],
+		"body": [
+			"! Enable an MOTD Banner", 
+			"banner motd #$1#"
+		],
+		"description": "Enable an MOTD Banner"
+	},
+
 	
-
-
-
-
+	"Defualt Static Route":{
+		"scope":"cisco",
+		"prefix": ["defualt static route", "defsr", "defstatic"],
+		"body": [
+			"!Defualt Static Route to <Next Hop IP>",
+			"ip route 0.0.0.0 0.0.0.0 $1"
+		],
+		"description": "Defualt Static Route"
+	},
+	
 }
