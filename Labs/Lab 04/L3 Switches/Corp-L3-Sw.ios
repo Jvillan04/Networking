@@ -16,6 +16,7 @@ line vty 0 4
  logging synchronous
  login
  login local
+ transport input ssh
 exit
 
 ! Create a new user account

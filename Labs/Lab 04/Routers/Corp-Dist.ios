@@ -21,6 +21,7 @@ line vty 0 4
  logging synchronous
  login
  login local
+ transport input ssh
 exit
 
 ! User Configuration

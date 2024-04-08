@@ -23,6 +23,7 @@ line con 0
  logging synchronous
  login
 line vty 0 4
+ password cisco
  logging synchronous
  login
  transport input ssh
