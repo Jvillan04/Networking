@@ -55,10 +55,10 @@ service password-encryption
 !--------------------------------------------------------------------------------------------------------------------------
 
 
-! OSPF Configuration
 ! Defualt Static Route to ISP (IP Address: 200.16.15.1)
 ip route 0.0.0.0 0.0.0.0 200.16.15.1
 
+! OSPF Configuration
 router ospf 1
 router-id 192.168.100.1
 ! Default Route Injection
@@ -68,4 +68,36 @@ network 172.16.4.0 0.0.0.3 area 0
 ! Apply OSPF Authentication to OSPF area 0
 area 0 authentication message-digest
 exit
+
+
+
+!--------------------------------------------------------------------------------------------------------------------------
+!Configure After OSPF is done
+!--------------------------------------------------------------------------------------------------------------------------
+
+
+!Configure NAT and PAT <Public IP Lower Bound> <Public IP Upper Bound> <Public IP Netmask>
+ip nat pool PUBLIC-NAT-POOL 200.16.15.4 200.16.15.7 netmask 255.255.255.0
+! Make a standard ACL and name it NAT-ACL
+ip access-list standard NAT-ACL
+! Add a description
+remark this is used for outbound NAT and PAT
+! Define the private network that will be NATed <NetAddr> <Wildcard Mask>
+permit 172.16.4.0 0.0.0.3
+permit 172.16.4.4 0.0.0.3
+permit 172.16.5.0 0.0.0.255
+permit 172.16.6.0 0.0.0.255
+permit 172.16.7.0 0.0.0.255
+! Deny everything else 
+deny any
+! Implement NAT and PAT by referencing NAT-ACL as the ip addresses to be NATed and PUBLIC-NAT-POOL as the pool of public ip addresses that these addresses will be translated to and to overload (PAT)
+! PAT is used to allow multiple private ip addresses to be translated to a single public ip address
+ip nat inside source list NAT-ACL pool PUBLIC-NAT-POOL overload
+! Apply the NAT configuration to the inside interface connected to the private network (Addresses that will be NATed)
+int  g0/0/1
+ip nat inside
+! Apply the NAT configuration to the outside interface connected to public network
+int s0/1/0
+ip nat outside
+
 

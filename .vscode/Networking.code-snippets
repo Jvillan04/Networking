@@ -263,7 +263,7 @@
 		"prefix": ["NAT and PAT", "natandpat", "natpat"],
 		"body": [
 			"!Configure NAT and PAT <Public IP Lower Bound> <Public IP Upper Bound> <Public IP Netmask>",
-			"PUBLIC-NAT-POOL $1 $2 netmask $3",
+			"ip nat pool PUBLIC-NAT-POOL $1 $2 netmask $3",
 			"! Make a standard ACL and name it NAT-ACL",
 			"ip access-list standard NAT-ACL",
 			"! Add a description",
@@ -272,10 +272,15 @@
 			"permit $4 $5",
 			"! Deny everything else ",
 			"deny any",
-			"! Apply NAT and PAT to interface (Reference the ACL named 'NAT-ACL')",
-			"ip nat inside source list NAT-ACL int $6 overload",
-			"! implement NAT and PAT by referencing NAT-ACL as the ip addresses to be NATed and PATed and PUBLIC-NAT-POOL as the pool of public ip addresses that these addresses will be translated to",
-			"ip nat inside source list NAT-ACL pool PUBLIC-NAT-POOL overload"
+			"! Apply NAT using the defined pool and enable PAT (overload)",
+			"! Implement NAT and PAT by referencing NAT-ACL as the ip addresses to be NATed and PUBLIC-NAT-POOL as the pool of public ip addresses that these addresses will be translated to and to overload (PAT)",
+			"! PAT is used to allow multiple private ip addresses to be translated to a single public ip address",
+			"! Apply the NAT configuration to the inside interface connected to the private network (Addresses that will be NATed)",
+			"int $6",
+			"ip nat inside",
+			"! Apply the NAT configuration to the outside interface connected to public network",
+			"int $7",
+			"ip nat outside"
 		],
 		"description": "Configure NAT and PAT"
 	},
