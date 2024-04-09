@@ -1,0 +1,26 @@
+! Create an ACL any RFC1918 address and any 127.0.0.0/8 address to enter the router wfrom the Corporate network with the exception of the addresses in use on the Corporate LANs
+
+!Create an extended named ACL
+ip access-list extended DENY-RFC1918-LOOPBACK
+remark allow the internal networks to go into the router
+permit ip 172.16.4.0 0.0.0.3 any
+permit ip 172.16.4.4 0.0.0.3 any
+permit ip 172.16.5.0 0.0.0.255 any
+permit ip 172.16.6.0 0.0.0.255 any
+permit ip 172.16.7.0 0.0.0.255 any
+permit ip 172.100.10.0 0.0.0.255 any
+remark deny all other RFC1918 addresses and loopback addresses
+deny ip 10.0.0.0 0.255.255.255 any
+deny ip 172.16.0.0 0.15.255.255 any
+deny ip 192.168.0.0 0.0.255.255 any
+deny ip 127.0.0.0 0.255.255.255 any
+remark permit all other traffic (ensure OSPF still works)
+permit ip any any
+! Permitting traffic at the end will ensure OSPF, HTTP/HTTPs, and FTP traffic will still work 
+! OSPF uses an IP multi-cast address of 255.0.0.5
+! We are not putting in the 192.168.100.x addresses as they are only used for OSPF Router ID's and are not used for data traffic.
+! Those Lo0 addresses are still being recieved by the router from the Corporate network since OSPF uses it's
+
+! Apply the ACL to int g0/0/1 (the interface facing the Corporate network)
+int g0/0/1
+ip access-group DENY-RFC1918-LOOPBACK in

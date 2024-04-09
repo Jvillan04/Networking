@@ -1,0 +1,35 @@
+! Make an ACL for the ISP router to any any RFC1918 address and any 127.0.0.0/8 address to enter the ISP router from the Corporate network.
+
+
+! The RFC1918 address space includes the following networks:
+! 10.0.0.0 - 10.255.255.255 Subnet mask 255.0.0.0 (/8)
+! 172.16.0.0 - 172.31.255.255 Subnet mask 255.240.0.0 (/12)
+! 192.168.0.0 - 192.168.255.255 Subnet mask 255.255.0.0 (/16)
+
+!Create a standard named ACL
+ip access-list extended DENY-RFC1918-AND-LOOPBACK
+remark deny any RFC1918 address and any loobback address
+deny ip 10.0.0.0 0.255.255.255 any
+deny ip 172.16.0.0 0.15.255.255 any
+deny ip 192.168.0.0 0.0.255.255 any
+deny ip 127.0.0.0 0.255.255.255 any
+remark permit all other traffic
+permit ip any any
+
+
+! for the test case: go to an older version of the file where (V3OSPFNew) NAT is not configured to verify that the ACL is working and these addresses are blocked
+
+! Apply it to the interface facing the Corporate network (int s0/1/0)
+int s0/1/0
+ip access-group DENY-RFC1918-AND-LOOPBACK in
+
+
+
+!---------------------------------------------------------------------------------------------------------------------
+! Configure on Corp-L3 Sw to test ACLS
+!---------------------------------------------------------------------------------------------------------------------
+
+int g1/0/16
+no switchport
+ip add 10.10.10.10 255.255.255.0
+no shut
