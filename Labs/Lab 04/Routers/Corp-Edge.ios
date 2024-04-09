@@ -60,6 +60,7 @@ service password-encryption
 ip route 0.0.0.0 0.0.0.0 200.16.15.1
 
 router ospf 1
+router-id 192.168.100.1
 ! Default Route Injection
 default-information originate
 ! Advertise the following networks into OSPF area 0
