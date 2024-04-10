@@ -22,12 +22,13 @@ policy-map type inspect HTTPS-FTP-POLICY
 class type inspect HTTPS-FTP
 ! Inspect the HTTPS and FTP traffic (state-based traffic control)
 inspect
-exit
-exit
 
 ! Incase we want to pass all other traffic uncomment line 29 and 30 do this within the policy-map HTTPS-FTP-POLICY config mode
 ! class class-default
 !  pass
+
+exit
+exit
 
 ! Create and Identify the appropriate zone-pair where the Corporate network is the source and the Internet is the destination (Step 4: Identify a Zone-Pair and Match to a Policy)
 
