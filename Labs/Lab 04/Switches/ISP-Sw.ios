@@ -20,6 +20,7 @@ line vty 0 4
  password cisco
  logging synchronous
  login
+ transport input ssh
 exit
 
 !SSH

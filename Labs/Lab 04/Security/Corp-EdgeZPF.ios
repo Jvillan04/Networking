@@ -1,0 +1,48 @@
+! Create two distinct zones: one for corporate network and one for the public internet (Step 1: Create the zones)
+zone security PRIVATE
+exit
+zone security PUBLIC
+exit
+
+! Create a class-map to identify and inspect HTTPS and FTP traffic (Step 2: Identify Traffic)
+
+! use 'match-any' to match either HTTPS or FTP traffic and name the class-map HTTPS-FTP 
+class-map type inspect match-any HTTPS-FTP
+! Match HTTPS traffic
+match protocol https
+! Match FTP traffic
+match protocol ftp
+exit
+
+! Specify the appriopriate action using a policy-map to inspect HTTPS and FTP traffic (Step 3: Specify Actions)
+
+! Create a policy-map named HTTPS-FTP-POLICY
+policy-map type inspect HTTPS-FTP-POLICY
+! Asscoiate the class-map HTTPS-FTP with the policy-map
+class type inspect HTTPS-FTP
+! Inspect the HTTPS and FTP traffic (state-based traffic control)
+inspect
+exit
+exit
+
+! Create and Identify the appropriate zone-pair where the Corporate network is the source and the Internet is the destination (Step 4: Identify a Zone-Pair and Match to a Policy)
+
+! Create a zone-pair named PRIVATE-TO-PUBLIC with the source zone as PRIVATE and the destination zone as PUBLIC (Zones created in Step 1)
+zone-pair security PRIVATE-TO-PUBLIC source PRIVATE destination PUBLIC
+! Associate the policy-map HTTPS-FTP-POLICY with the zone-pair
+service-policy type inspect HTTPS-FTP-POLICY
+exit
+
+!Assign the zones to the appropriate interfaces (Step 5: Assign Zones to Interfaces)
+! Assign the PUBLIC zone to the interface connected to the Internet (e.g. s0/1/0)
+int s0/1/0
+zone-member security PUBLIC
+! Assign the PRIVATE zone to the interface connected to the Corporate network (e.g. g0/0/1)
+int g0/0/1
+zone-member security PRIVATE
+exit
+
+
+
+
+
