@@ -25,6 +25,10 @@ inspect
 exit
 exit
 
+! Incase we want to pass all other traffic uncomment line 29 and 30 do this within the policy-map HTTPS-FTP-POLICY config mode
+! class class-default
+!  pass
+
 ! Create and Identify the appropriate zone-pair where the Corporate network is the source and the Internet is the destination (Step 4: Identify a Zone-Pair and Match to a Policy)
 
 ! Create a zone-pair named PRIVATE-TO-PUBLIC with the source zone as PRIVATE and the destination zone as PUBLIC (Zones created in Step 1)
@@ -42,6 +46,7 @@ int g0/0/1
 zone-member security PRIVATE
 exit
 
+! At the end of the policy map, there is an implicit class-default class-map that will drop all traffic that is not matched by the HTTPS-FTP class-map. 
 
 
 
