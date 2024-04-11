@@ -10,10 +10,14 @@ ip add 192.168.21.11 255.255.255.0
 no shut
 
 
-! Tie the IP configured in int vlan 1 and put on int f0
+! Tie the IP configured in int vlan 1 and put on int f0 and f1
 int f0
 no shut
-switchport mode access
+switchport access vlan 1 
+no shut
+
+int f1
+no shut
 switchport access vlan 1 
 no shut
 
