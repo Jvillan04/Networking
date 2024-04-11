@@ -43,7 +43,6 @@ banner motd # UNAUTHORIZED ACCESS STRICTLY PROHIBITED!!!#
 service password-encryption
 
 
-! Configure OSPF
 
 ! OSPF Configuration
 router ospf 1
