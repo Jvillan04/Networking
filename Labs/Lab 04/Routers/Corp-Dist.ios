@@ -6,6 +6,8 @@ enable secret cisco
 ! Interface Configuration
 int g0/0/1
 ip add 172.16.4.6 255.255.255.252
+! OSPF Authentication
+ip ospf message-digest-key 1 md5 cisco
 no shut
 
 int Lo0
@@ -41,5 +43,13 @@ banner motd # UNAUTHORIZED ACCESS STRICTLY PROHIBITED!!!#
 service password-encryption
 
 
-! No OSPF on this device ¯\_(ツ)_/¯
+! Configure OSPF
 
+! OSPF Configuration
+router ospf 1
+router-id 192.168.100.3
+! Advertise the network that Corp-Dist is connected to 
+network 172.16.4.4 0.0.0.3 area 0
+! Apply OSPF Authentication to OSPF area 0
+area 0 authentication message-digest
+exit
