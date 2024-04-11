@@ -53,3 +53,4 @@ network 172.16.4.4 0.0.0.3 area 0
 ! Apply OSPF Authentication to OSPF area 0
 area 0 authentication message-digest
 exit
+
