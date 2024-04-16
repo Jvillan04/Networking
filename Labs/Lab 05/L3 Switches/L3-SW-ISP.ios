@@ -1,0 +1,21 @@
+en
+conf t
+hostname L3-SW-ISP
+
+! Set Up loopback interfaces
+
+int Lo200
+ip add 200.200.200.200 255.255.255.255
+
+int Lo201
+ip add Lo201
+ip add 201.201.201.201 255.255.255.255
+
+! Set up physical interfaces (These will have public IPs) (These will connect to the ASA-FW on the VLANs marked as 'outside')
+
+int g1/0/1 
+ip add
+197.197.197.193 255.255.255.248
+no shut
+
+int g1/0/2
