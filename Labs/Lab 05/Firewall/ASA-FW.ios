@@ -3,7 +3,7 @@
 
 ! This firewall is not routed so ip addresses will need to be on vlan interfaces
 
-! Set on e0/0
+! Set on e0/0 to be part of the outside interface
 int e0/0
 no shut
 switchport mode access
@@ -16,8 +16,13 @@ no shutdown
 ! Using 'outside' name sets the security level to 0 automatically
 nameif outside
 
-! Set on e0/1
-int e0/0
+! Set on e0/1 and e0/2 to be part of the inside interfaces
+int e0/1
+no shut
+switchport mode access
+switchport access vlan 1
+
+int e0/2
 no shut
 switchport mode access
 switchport access vlan 1
