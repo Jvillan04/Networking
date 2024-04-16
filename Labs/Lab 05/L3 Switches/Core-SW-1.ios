@@ -1,0 +1,19 @@
+en
+conf t
+hostname Core-SW-1
+
+! Enable IP routing
+ip routing
+
+! Interface Configuration
+
+! Set the Administrative IP address (VLAN 1)
+int vlan 1
+ip add 192.168.21.10 255.255.255.0 
+no shut
+
+int g1/0/3
+no switchport
+ip add 
+no shut
+
