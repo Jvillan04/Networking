@@ -2,6 +2,10 @@ en
 conf t
 hostname L3-SW-ISP
 
+! Enable IP routing
+ip routing
+
+
 ! Set Up loopback interfaces
 
 int Lo200
@@ -14,8 +18,37 @@ ip add 201.201.201.201 255.255.255.255
 ! Set up physical interfaces (These will have public IPs) (These will connect to the ASA-FW on the VLANs marked as 'outside')
 
 int g1/0/1 
+no switchport
 ip add
 197.197.197.193 255.255.255.248
 no shut
 
-int g1/0/2
+int g1/0/3
+no switchport
+198.198.198.198 255.255.255.248
+no shut
+
+
+! VTY and Console Line Configuration 
+line con 0
+ password cisco
+ logging synchronous
+ login
+line vty 0 4
+ password cisco
+ logging synchronous
+ login
+ login local
+ transport input ssh
+exit
+
+! Create a new user account
+username cisco secret cisco
+
+!SSH
+ip domain-name inetlab.com
+crypto key generate rsa
+2048
+ip ssh version 2
+
+
