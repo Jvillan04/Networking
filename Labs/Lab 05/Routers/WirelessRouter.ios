@@ -1,0 +1,26 @@
+! Config For Router 1 in lab
+
+en
+conf t
+hostname WR1
+
+! Create int vlan and set it as the defualt gateway for devices in VLAN 1
+int vlan 1
+ip add 192.168.21.11 255.255.255.0 
+no shut
+
+
+! Tie the IP configured in int vlan 1 and put on int f0 and f1
+int f0
+no shut
+switchport access vlan 1 
+no shut
+
+int f1
+no shut
+switchport access vlan 1 
+no shut
+
+! Defualt Route to ASA-FW-1
+!Defualt Static Route to <Next Hop IP>
+ip route 0.0.0.0 0.0.0.0 192.168.21.1

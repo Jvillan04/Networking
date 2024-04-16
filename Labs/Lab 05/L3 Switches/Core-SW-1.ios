@@ -15,5 +15,21 @@ no shut
 int g1/0/3
 no switchport
 ip add 
+!OSPF Authentication
+ip ospf message-digest-key 1 md5 cisco
 no shut
+
+
+!------------------------------------------------------------------------------------------------
+
+! Use this OSPF config to advertise the route to the ASA Firewall
+
+!------------------------------------------------------------------------------------------------
+
+! OSPF Configuration
+router ospf 1
+! Advertise the following networks into OSPF area 0
+network  area 0
+! Apply OSPF Authentication to OSPF area 0
+area 0 authentication message-digest
 
