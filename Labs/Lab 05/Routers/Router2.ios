@@ -1,0 +1,4 @@
+en
+conf t
+hostname Router2
+
