@@ -100,4 +100,3 @@ ip nat inside
 int s0/1/0
 ip nat outside
 
-
