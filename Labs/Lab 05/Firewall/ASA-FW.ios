@@ -58,4 +58,12 @@ route inside 192.168.20.0 255.255.255.252 192.168.21.10
 ! Route Below does not work
 ! route outside 192.168.20.0 255.255.255.252 192.168.21.10
 
+! Static NAT and PAT for PC 1
+static(192.168.21.101, 197.197.197.196)
 
+! NAT and PAT use the pool of public IP addresses that the ASA-FW is connected to
+! Public IPs: 
+!NetAdd: 197.197.197.192 BroadCast 197.197.197.199 
+! Usable Host IP Range: 197.197.197.193 - 197.197.197.198 
+! Usable Host IPs after devices and static NAT/PAT: 197.197.197.196-197.197.197.198
+global (outside) 1 
