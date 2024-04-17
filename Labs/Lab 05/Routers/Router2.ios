@@ -1,6 +1,6 @@
 en
 conf t
-hostname Router2
+hostname R2
 
 ! Interface Configurations
 

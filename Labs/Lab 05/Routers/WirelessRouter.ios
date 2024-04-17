@@ -28,3 +28,5 @@ ip route 0.0.0.0 0.0.0.0 192.168.21.1
 ! Default Route to Core-SW-1 g1/0/3 ip address via the Switch's IP Address
 ip route 192.168.20.0 255.255.255.252 192.168.21.10
 
+
+ip route 192.168.20.4 255.255.255.252 192.168.20.2
