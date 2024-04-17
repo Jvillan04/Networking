@@ -52,4 +52,10 @@ dhcpd enable inside
 ! Add defualt static route to Wireless Router (WR)
 route outside 0.0.0.0 0.0.0.0 192.168.21.11
 
+! Static Route to ip address on int g1/0/3 on Core-SW-1
+route inside 192.168.20.0 255.255.255.252 192.168.21.10
+
+! Route Below does not work
+! route outside 192.168.20.0 255.255.255.252 192.168.21.10
+
 
