@@ -2,4 +2,24 @@ en
 conf t
 hostname Router2
 
-Jvillan04/Networking/Labs/Lab 04/Switches
+! Interface Configurations
+
+int Lo1
+ip add 192.168.10.10 255.255.255.255
+int Lo2
+ip add 192.168.20.20 255.255.255.255
+
+int f0/1
+ip add 192.168.20.6 255.255.255.252
+!OSPF Authentication
+ip ospf message-digest-key 1 md5 cisco
+no shut
+
+
+! OSPF Config
+! OSPF Configuration
+router ospf 1
+! Advertise the following networks into OSPF area 0
+network 192.168.20.4 0.0.0.3 area 0
+! Apply OSPF Authentication to OSPF area 0
+area 0 authentication message-digest

@@ -16,19 +16,26 @@ ip add Lo201
 ip add 201.201.201.201 255.255.255.255
 
 ! Set up physical interfaces (These will have public IPs) (These will connect to the ASA-FW on the VLANs marked as 'outside')
-
+! Make this a routed port
 int g1/0/1 
 no switchport
 ip add
 197.197.197.193 255.255.255.248
 no shut
-
+! Make this a routed port
 int g1/0/3
 no switchport
-198.198.198.198 255.255.255.248
+198.198.198.193 255.255.255.248
 no shut
 
 
+
+
+
+
+
+
+! Other Configs ------------------------------------------------------------------------------------------------
 ! VTY and Console Line Configuration 
 line con 0
  password cisco

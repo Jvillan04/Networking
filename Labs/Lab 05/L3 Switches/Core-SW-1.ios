@@ -25,11 +25,16 @@ no shut
 ! Use this OSPF config to advertise the route to the ASA Firewall
 
 !------------------------------------------------------------------------------------------------
+! Defualt Static Route to ASA-FW (IP Address: 192.168.21.1)
+!Defualt Static Route to <Next Hop IP>
+ip route 0.0.0.0 0.0.0.0 192.168.21.1
 
 ! OSPF Configuration
 router ospf 1
+! Default Route Injection
+default-information originate
 ! Advertise the following networks into OSPF area 0
-network  area 0
+network 192.168.20.0 0.0.0.3 area 0
 ! Apply OSPF Authentication to OSPF area 0
 area 0 authentication message-digest
 
