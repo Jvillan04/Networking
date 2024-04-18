@@ -62,8 +62,16 @@ route inside 192.168.20.4 255.255.255.252 192.168.20.2
 ! Route Below does not work
 ! route outside 192.168.20.0 255.255.255.252 192.168.21.10
 
-! Static NAT and PAT for PC 1
-static(192.168.21.101, 197.197.197.196)
+! Static NAT for PC 1
+
+! Create a network Object for PC1 named 'obj-PC1'
+object network obj-PC1
+! Inside Network Object config mode identify the host (IP address of PC1 192.168.21.101)
+network-object PC1
+! Configure static NAT for PC1 with a public IP of 197.197.197.196
+! Netmask indicates that this is a one-to-one mapping
+static (inside,outside) static 197.197.197.196 192.168.21.101 netmask 255.255.255.255
+
 
 ! NAT and PAT use the pool of public IP addresses that the ASA-FW is connected to
 ! Public IPs: 
@@ -71,3 +79,5 @@ static(192.168.21.101, 197.197.197.196)
 ! Usable Host IP Range: 197.197.197.193 - 197.197.197.198 
 ! Usable Host IPs after devices and static NAT/PAT: 197.197.197.196-197.197.197.198
 global (outside) 1 
+
+! ACLs

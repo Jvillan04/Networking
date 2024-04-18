@@ -10,11 +10,13 @@ ip routing
 ! Set the Administrative IP address (VLAN 1)
 int vlan 1
 ip add 192.168.21.10 255.255.255.0 
+!OSPF Authentication
+ip ospf message-digest-key 1 md5 cisco
 no shut
 
 int g1/0/3
 no switchport
-ip add 
+ip add 192.168.20.1 255.255.255.252
 !OSPF Authentication
 ip ospf message-digest-key 1 md5 cisco
 no shut
@@ -35,6 +37,7 @@ router ospf 1
 default-information originate
 ! Advertise the following networks into OSPF area 0
 network 192.168.20.0 0.0.0.3 area 0
+network 192.168.21.0 0.0.0.255 area 0
 ! Apply OSPF Authentication to OSPF area 0
 area 0 authentication message-digest
 
