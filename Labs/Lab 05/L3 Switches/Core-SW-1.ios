@@ -14,6 +14,7 @@ ip add 192.168.21.10 255.255.255.0
 ip ospf message-digest-key 1 md5 cisco
 no shut
 
+
 int g1/0/3
 no switchport
 ip add 192.168.20.1 255.255.255.252
