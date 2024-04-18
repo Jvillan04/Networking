@@ -28,7 +28,7 @@ switchport mode access
 switchport access vlan 1
 
 interface vlan 1
-ip address  192.168.21.1 255.255.255.0
+ip address 192.168.21.1 255.255.255.0
 no shutdown
 ! Set interface vlan 1 name to 'inside'
 ! Using 'inside' name sets the security level to 100 automatically
