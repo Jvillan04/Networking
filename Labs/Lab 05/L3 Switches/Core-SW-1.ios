@@ -42,3 +42,23 @@ network 192.168.21.0 0.0.0.255 area 0
 ! Apply OSPF Authentication to OSPF area 0
 area 0 authentication message-digest
 
+
+
+! AAA ---------------------------------------------------------------------------------------------
+! Create a new user account
+username cisco secret cisco
+
+! Enable AAA
+aaa new-model
+
+! Create new RADIUS server config named `AAA` (Also brings you into config-radius-server mode)
+radius server AAA
+
+! Specify the IPv4 Address of the RADIUS server (Corp-AAA-Server's IP address)
+address ipv4 192.168.21.100
+
+! Specify a key of 
+key 10
+
+! Create authentication list
+aaa authentication login default group radius local

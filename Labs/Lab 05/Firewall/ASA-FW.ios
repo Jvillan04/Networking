@@ -49,14 +49,15 @@ dhcpd lease 3600
 ! Enable the DHCP config on the inside interface
 dhcpd enable inside
 
-! Add defualt static route to Wireless Router (WR) (Why route outside?)
-route outside 0.0.0.0 0.0.0.0 192.168.21.11
-
 ! Static Route to ip address on int g1/0/3 on Core-SW-1
 route inside 192.168.20.0 255.255.255.252 192.168.21.10
 
 ! Static route to network 192.168.20.4 (R1 and R2 Network)
 route inside 192.168.20.4 255.255.255.252 192.168.20.2
+
+! Add defualt static route to Wireless Router (WR) (Why route outside?) Still pings fine without this (Leave it off)
+route outside 0.0.0.0 0.0.0.0 192.168.21.11
+
 
 
 
