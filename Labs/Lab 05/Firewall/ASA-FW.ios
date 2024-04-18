@@ -49,7 +49,7 @@ dhcpd lease 3600
 ! Enable the DHCP config on the inside interface
 dhcpd enable inside
 
-! Add defualt static route to Wireless Router (WR)
+! Add defualt static route to Wireless Router (WR) (Why route outside?)
 route outside 0.0.0.0 0.0.0.0 192.168.21.11
 
 ! Static Route to ip address on int g1/0/3 on Core-SW-1
@@ -89,6 +89,20 @@ global (outside) 1
 ! ACL to allow ping from outside to PC1
 access-list OUTSIDE-ACCESS-IN extended permit icmp any host 197.197.197.196 echo-reply
 access-list OUTSIDE-ACCESS-IN extended permit icmp any host 197.197.197.196 echo
+
+! ACL to allow pings inbound to the outside interface
+access-list OUTSIDE-ACCESS-IN extended permit icmp any any echo
+access-list OUTSIDE-ACCESS-IN extended permit icmp any any echo-reply
+! ACL to allow all traffic inbound to the outside interface
+access-group OUTSIDE-ACCESS-IN in interface outside
+
+
+! Make one for inbouhd traffic to the inside interface
+access-list INSIDE-ACCESS-IN extended permit icmp any any echo
+access-list INSIDE-ACCESS-IN extended permit icmp any any echo-reply
+access-group INSIDE-ACCESS-IN in interface inside
+
+
 
 ! Apply the ACL to the outside interface in an inbound direction
 access-group OUTSIDE-ACCESS-IN in interface outside

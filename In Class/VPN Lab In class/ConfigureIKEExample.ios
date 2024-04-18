@@ -1,0 +1,73 @@
+! Enable IKE/ISAKMP on the router
+crypto isakmp enable
+
+! Create an IKE Policy
+crypto isakmp policy 20
+
+! Set the policy priority (And enter into isakkmp configuration mode)
+crypto isakmp policy 20
+
+! Set authentication to pre-shared keys
+authentication pre-share
+
+! Set IKE encryption to 3DES
+encryption 3des
+
+! Set the IKE SA (Security Ascsciocation) lifetime (defualt is 86400 seconds)
+lifetime 86400
+
+! Create Preshared key to use with Perr IP Address
+crypto isakmp key T3@CH address 180.1.2.162
+
+! Show the IKE policy
+show crypto isakmp policy
+
+
+! Define a transform set for IPSec (IKE Phase 2) (Anything IPSec related to IKE phase 2)
+
+crypto ipsec transform-set NortheastTransform esp-3des
+
+! Show the transform set
+show crypto ipsec transform-set
+
+! NOTE: IPSec phase 1 needs to be configured before phase 2 (Needs to work in order)
+
+
+! Crypto ACLs are created to select traffic to protect (What traffic to encrypt and what not to)
+! Configure Cypto ACLs
+access-list 120 permit ip host 172.28.20.21 host 172.28.40.101
+
+! Show the ACL
+show access-list
+
+
+! Define Crypto Map Parameters
+
+! Create a Cryptomap with a name, number and tupe of key exchange
+crypto map NortheastMap 20 ipsec-isakmp
+
+match address 120
+
+
+
+
+
+
+! Apply the Crypto Map to the interface
+
+! Specfy the interface to apply the crypto map to (hint: the outside interface of the router)
+int s0/0/0
+
+! Specify the cryptomap to use on the interface
+NortheastMap
+
+
+int s0/0/0
+
+! Apply the crypto map to the interface
+crypto map NortheastMap
+
+! Show the Crypto Map
+show crypto ipsec sa
+
+
