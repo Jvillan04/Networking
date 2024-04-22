@@ -1,4 +1,4 @@
-! This config is for a CISCO ASA 5505 series firewall
+! This config is for a CISCO ASA 5505 series firewall (Version 8.2(5))
 ! Commands for this device are different compared to others
 
 ! This firewall is not routed so ip addresses will need to be on vlan interfaces
@@ -69,22 +69,10 @@ route outside 0.0.0.0 0.0.0.0 192.168.21.11
 
 ! Static NAT for PC 1
 
-! Create a network Object for PC1 named 'obj-PC1'
-!object network obj-PC1
-! Inside Network Object config mode identify the host (IP address of PC1 192.168.21.101)
-!network-object PC1
-! Configure static NAT for PC1 with a public IP of 197.197.197.196
-! Netmask indicates that this is a one-to-one mapping
-static (inside,outside) static 197.197.197.196 192.168.21.101 netmask 255.255.255.255
+! Dynamic PAT for network
 
-
-! NAT and PAT use the pool of public IP addresses that the ASA-FW is connected to
-! Public IPs: 
-!NetAdd: 197.197.197.192 BroadCast 197.197.197.199 
-! Usable Host IP Range: 197.197.197.193 - 197.197.197.198 
-! Usable Host IPs after devices and static NAT/PAT: 197.197.197.196-197.197.197.198
-global (outside) 1 
-
+ASA-FW-1(config)# nat (inside) 1 0.0.0.0 0.0.0.0 
+ASA-FW-1(config)# global (outside) 1 interface 
 ! ACLs
 
 ! ACL to allow ping from outside to PC1
@@ -107,3 +95,4 @@ access-group INSIDE-ACCESS-IN in interface inside
 
 ! Apply the ACL to the outside interface in an inbound direction
 access-group OUTSIDE-ACCESS-IN in interface outside
+
