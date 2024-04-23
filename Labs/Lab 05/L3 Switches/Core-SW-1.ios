@@ -7,6 +7,31 @@ ip routing
 
 ! Interface Configuration
 
+! VTY and Console Line Configuration 
+line con 0
+ password cisco
+ logging synchronous
+ login
+line vty 0 4
+ password cisco
+ logging synchronous
+ login
+ login local
+ transport input ssh
+exit
+
+! Create a new user account
+username cisco secret cisco
+
+!SSH
+ip domain-name inetlab.com
+crypto key generate rsa
+2048
+ip ssh version 2
+
+
+
+
 ! Set the Administrative IP address (VLAN 1)
 int vlan 1
 ip add 192.168.21.10 255.255.255.0 
@@ -61,4 +86,15 @@ address ipv4 192.168.21.100
 key 10
 
 ! Create authentication list
-aaa authentication login default group radius local
+aaa authentication login MYRADIUS group radius local
+
+
+! Apply the AAA authentication list to the VTY lines
+line vty 0 4
+login authentication MYRADIUS
+! Apply the AAA authentication list to the console line
+line con 0
+login authentication MYRADIUS
+
+
+

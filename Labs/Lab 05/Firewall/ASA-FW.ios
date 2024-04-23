@@ -1,4 +1,5 @@
 ! This config is for a CISCO ASA 5505 series firewall (Version 8.2(5))
+! Note: When looking at configuration examples online maake sure to look up examples for "pre 8.3" as the commands are different adter version 8.3
 ! Commands for this device are different compared to others
 
 ! This firewall is not routed so ip addresses will need to be on vlan interfaces
@@ -67,12 +68,14 @@ route outside 0.0.0.0 0.0.0.0 192.168.21.11
 ! Route Below does not work
 ! route outside 192.168.20.0 255.255.255.252 192.168.21.10
 
-! Static NAT for PC 1
+! Static NAT for PC 1 (IP: 192.168.21.101) to an IP Address of 197.197.197.195 (use netmask of /32 since this is a one to one mapping ie. one ip to one ip)
+static (inside,outside) 192.168.21.101 197.197.197.195 netmask 255.255.255.255
 
 ! Dynamic PAT for network
 
 ASA-FW-1(config)# nat (inside) 1 0.0.0.0 0.0.0.0 
 ASA-FW-1(config)# global (outside) 1 interface 
+
 ! ACLs
 
 ! ACL to allow ping from outside to PC1
