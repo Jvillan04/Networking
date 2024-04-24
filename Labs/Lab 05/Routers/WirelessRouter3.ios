@@ -1,0 +1,30 @@
+! Config For Router 1 in lab
+
+en
+conf t
+hostname WR3
+
+! Create int vlan and set it as the defualt gateway for devices in VLAN 1
+int vlan 1
+ip add 192.168.23.11 255.255.255.0 
+no shut
+
+! Tie the IP configured in int vlan 1 and put on int f0 and f1
+int f0
+no shut
+switchport access vlan 1 
+no shut
+
+int f1
+no shut
+switchport access vlan 1 
+no shut
+
+! Defualt Route to ASA-FW-3
+! Defualt Static Route to <Next Hop IP>
+ip route 0.0.0.0 0.0.0.0 192.168.23.1
+
+! Static Route to Core-SW-1 g1/0/3 ip address via the Switch's IP Address
+ip route 192.168.19.0 255.255.255.252 192.168.23.10
+
+ip route 192.168.19.4 255.255.255.252 192.168.19.2
