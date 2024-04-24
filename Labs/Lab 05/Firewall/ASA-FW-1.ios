@@ -73,8 +73,11 @@ static (inside,outside) 192.168.21.101 197.197.197.195 netmask 255.255.255.255
 
 ! Dynamic PAT for network
 
-ASA-FW-1(config)# nat (inside) 1 0.0.0.0 0.0.0.0 
-ASA-FW-1(config)# global (outside) 1 interface 
+nat (inside) 1 0.0.0.0 0.0.0.0 
+global (outside) 1 interface 
+
+nat (outside) 2 0.0.0.0 0.0.0.0 outside
+global (inside) 2 interface 
 
 ! ACLs
 
@@ -99,4 +102,33 @@ access-group INSIDE-ACCESS-IN in interface inside
 ! Apply the ACL to the outside interface in an inbound direction
 access-group OUTSIDE-ACCESS-IN in interface outside
 
+
+! Make an ACL to allow http traffic from the oustside to access the web server (PC1) 
+access-list OUTSIDE-ACCESS-IN extended permit tcp any host 192.168.21.101 eq www
+access-list OUTSIDE-ACCESS-IN extended permit tcp any host 197.197.197.195 eq www
+
+
+
+! ---------------- Expiremental ------------------------------------------------------------------------
+! Make an ACL to allow traffic from the inside to the outside
+access-list INSIDE-ACCESS-OUTBOUND permit icmp any any
+access-list INSIDE-ACCESS-OUTBOUND permit ip any any
+
+! Apply the ACL to the inside interface in an outbound direction
+access-group INSIDE-ACCESS-OUTBOUND out interface inside
+
+
+! -------------------------------------------------------------------------------------------------------
+
+
 ! Policy map for ICMP
+
+
+
+
+
+! This enables the ADSM (Web GUI) on for the inside interface (Not required, I just wanted to try it)
+ASA-FW-1(config)# http server enable 
+ASA-FW-1(config)# http 192.168.21.0 255.255.255.0 inside
+
+
