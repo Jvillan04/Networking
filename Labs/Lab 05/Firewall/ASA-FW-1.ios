@@ -78,20 +78,20 @@ ASA-FW-1(config)# global (outside) 1 interface
 
 ! ACLs
 
-! ACL to allow ping from outside to PC1
-access-list OUTSIDE-ACCESS-IN extended permit icmp any host 197.197.197.196 echo-reply
-access-list OUTSIDE-ACCESS-IN extended permit icmp any host 197.197.197.196 echo
 
-! ACL to allow pings inbound to the outside interface
-access-list OUTSIDE-ACCESS-IN extended permit icmp any any echo
-access-list OUTSIDE-ACCESS-IN extended permit icmp any any echo-reply
-! ACL to allow all traffic inbound to the outside interface
-access-group OUTSIDE-ACCESS-IN in interface outside
+! Create an ACL named OUTSIDE-ACCESS-IN to allow ICMP and IP traffic from any source to any destination (Some commands are commented out but might be used later)
+! Currently only allowing ICMP and IP traffic from any source to any destination (This is a very open ACL)
+access-list OUTSIDE-ACCESS-IN line 1 extended permit icmp any any 
+access-list OUTSIDE-ACCESS-IN line 2 extended permit ip any any 
+!access-list OUTSIDE-ACCESS-IN line 3 extended permit icmp any host 197.197.197.195 echo-reply (hitcnt=0) 0xddd1f0cb 
+!access-list OUTSIDE-ACCESS-IN line 4 extended permit icmp any host 197.197.197.195 echo (hitcnt=0) 0xb2ee8333 
 
 
-! Make one for inbouhd traffic to the inside interface
-access-list INSIDE-ACCESS-IN extended permit icmp any any echo
-access-list INSIDE-ACCESS-IN extended permit icmp any any echo-reply
+access-list INSIDE-ACCESS-IN line 1 extended permit icmp any any echo (hitcnt=2) 0xccf8c2d4 
+access-list INSIDE-ACCESS-IN line 2 extended permit icmp any any echo-reply (hitcnt=1) 0x950fa027 
+access-list INSIDE-ACCESS-IN line 3 extended permit ip any any (hitcnt=8060) 0x34d47d00 
+
+! Apply the ACL to the inside interface in an inbound direction
 access-group INSIDE-ACCESS-IN in interface inside
 
 
@@ -99,3 +99,4 @@ access-group INSIDE-ACCESS-IN in interface inside
 ! Apply the ACL to the outside interface in an inbound direction
 access-group OUTSIDE-ACCESS-IN in interface outside
 
+! Policy map for ICMP
