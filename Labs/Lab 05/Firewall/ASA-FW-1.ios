@@ -39,7 +39,7 @@ nameif inside
 ! Enable DHCP daemon with 'dhcpd'
 
 ! Set a range of 32 addresses on the inside interface
-dhcpd address 192.168.21.101-192.168.21.110 inside
+dhcpd address 192.168.21.101-192.168.21.102 inside
 
 !Set DHCP dns server
 dhcpd dns 8.8.8.8
