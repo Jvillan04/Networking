@@ -1,0 +1,100 @@
+! This config is for a CISCO ASA 5505 series firewall (Version 8.2(5))
+! Note: When looking at configuration examples online maake sure to look up examples for "pre 8.3" as the commands are different adter version 8.3
+! Commands for this device are different compared to others
+
+! This firewall is not routed so ip addresses will need to be on vlan interfaces
+
+! Set on e0/0 to be part of the outside interface
+int e0/0
+no shut
+switchport mode access
+switchport access vlan 8
+
+interface vlan 8
+ip address 198.198.198.194 255.255.255.248
+no shutdown
+! Set interface vlan 8 name to 'outside'
+! Using 'outside' name sets the security level to 0 automatically
+nameif outside
+
+! Set on e0/1 and e0/2 to be part of the inside interfaces
+int e0/1
+no shut
+switchport mode access
+switchport access vlan 1
+
+int e0/2
+no shut
+switchport mode access
+switchport access vlan 1
+
+interface vlan 1
+ip address 192.168.23.1 255.255.255.0
+no shutdown
+! Set interface vlan 1 name to 'inside'
+! Using 'inside' name sets the security level to 100 automatically
+nameif inside
+
+! DHCP (These devices have DHCP)
+! Enable DHCP daemon with 'dhcpd'
+
+! Set a range of 32 addresses on the inside interface
+dhcpd address 192.168.23.101-192.168.23.110 inside
+
+!Set DHCP dns server
+dhcpd dns 8.8.8.8
+
+! Set dhcp lease time to 3600 seconds (1 hour)
+dhcpd lease 3600
+
+! Enable the DHCP config on the inside interface
+dhcpd enable inside
+
+! Static Route to ip address on int g1/0/3 on Core-SW-3
+route inside 192.168.19.0 255.255.255.252 192.168.23.10
+
+! Static route to network 192.168.20.4 (R1 and R2 Network)
+route inside 192.168.19.4 255.255.255.252 192.168.19.2
+
+! Add defualt static route to Wireless Router (WR) (Why route outside?) Still pings fine without this (Leave it off)
+route outside 0.0.0.0 0.0.0.0 192.168.23.11
+
+
+
+
+
+! EVERYTHING BELOW IS WORK IN PROGRESS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+! Route Below does not work
+! route outside 192.168.19.0 255.255.255.252 192.168.23.10
+
+! Static NAT for PC 3 (IP: 192.168.23.103) to an IP Address of 197.197.197.195 (use netmask of /32 since this is a one to one mapping ie. one ip to one ip)
+static (inside,outside) 192.168.23.103 198.198.198.195 netmask 255.255.255.255
+
+! Dynamic PAT for network
+
+ASA-FW-3(config)# nat (inside) 1 0.0.0.0 0.0.0.0 
+ASA-FW-3(config)# global (outside) 1 interface 
+
+! ACLs
+
+! ACL to allow ping from outside to PC3
+access-list OUTSIDE-ACCESS-IN extended permit icmp any host 197.197.197.196 echo-reply
+access-list OUTSIDE-ACCESS-IN extended permit icmp any host 197.197.197.196 echo
+
+! ACL to allow pings inbound to the outside interface
+access-list OUTSIDE-ACCESS-IN extended permit icmp any any echo
+access-list OUTSIDE-ACCESS-IN extended permit icmp any any echo-reply
+! ACL to allow all traffic inbound to the outside interface
+access-group OUTSIDE-ACCESS-IN in interface outside
+
+
+! Make one for inbouhd traffic to the inside interface
+access-list INSIDE-ACCESS-IN extended permit icmp any any echo
+access-list INSIDE-ACCESS-IN extended permit icmp any any echo-reply
+access-group INSIDE-ACCESS-IN in interface inside
+
+
+
+! Apply the ACL to the outside interface in an inbound direction
+access-group OUTSIDE-ACCESS-IN in interface outside
