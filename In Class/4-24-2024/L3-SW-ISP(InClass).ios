@@ -1,0 +1,12 @@
+int vlan 4
+ip add 4.4.4.1 255.255.255.0
+
+exit
+
+vlan 4
+
+int g1/0/24
+switchport mode access
+switchport access vlan 4
+
+
