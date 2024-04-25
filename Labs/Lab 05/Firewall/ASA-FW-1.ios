@@ -79,8 +79,10 @@ global (outside) 1 interface
 nat (outside) 2 0.0.0.0 0.0.0.0 outside
 global (inside) 2 interface 
 
-! ACLs
 
+! ---------------- Work in Progress ------------------------------------------------------------------------
+
+! ACLS
 
 ! Create an ACL named OUTSIDE-ACCESS-IN to allow ICMP and IP traffic from any source to any destination (Some commands are commented out but might be used later)
 ! Currently only allowing ICMP and IP traffic from any source to any destination (This is a very open ACL)
@@ -90,9 +92,9 @@ access-list OUTSIDE-ACCESS-IN line 2 extended permit ip any any
 !access-list OUTSIDE-ACCESS-IN line 4 extended permit icmp any host 197.197.197.195 echo (hitcnt=0) 0xb2ee8333 
 
 
-access-list INSIDE-ACCESS-IN line 1 extended permit icmp any any echo (hitcnt=2) 0xccf8c2d4 
-access-list INSIDE-ACCESS-IN line 2 extended permit icmp any any echo-reply (hitcnt=1) 0x950fa027 
-access-list INSIDE-ACCESS-IN line 3 extended permit ip any any (hitcnt=8060) 0x34d47d00 
+access-list INSIDE-ACCESS-IN line 1 extended permit icmp any any echo  
+access-list INSIDE-ACCESS-IN line 2 extended permit icmp any any echo-reply
+access-list INSIDE-ACCESS-IN line 3 extended permit ip any any 
 
 ! Apply the ACL to the inside interface in an inbound direction
 access-group INSIDE-ACCESS-IN in interface inside
@@ -109,7 +111,6 @@ access-list OUTSIDE-ACCESS-IN extended permit tcp any host 197.197.197.195 eq ww
 
 
 
-! ---------------- Expiremental ------------------------------------------------------------------------
 ! Make an ACL to allow traffic from the inside to the outside
 access-list INSIDE-ACCESS-OUTBOUND permit icmp any any
 access-list INSIDE-ACCESS-OUTBOUND permit ip any any
