@@ -2,7 +2,8 @@
 ! Note: When looking at configuration examples online maake sure to look up examples for "pre 8.3" as the commands are different adter version 8.3
 ! Commands for this device are different compared to others
 
-! This firewall is not routed so ip addresses will need to be on vlan interfaces
+
+! Interface configs -------------------------------------------------------------------
 
 ! Set on e0/0 to be part of the outside interface
 int e0/0
@@ -15,7 +16,8 @@ ip address 197.197.197.194 255.255.255.248
 no shutdown
 ! Set interface vlan 7 name to 'outside'
 ! Using 'outside' name sets the security level to 0 automatically
-nameif outside
+nameif OUTSIDE
+security-level 0
 
 ! Set on e0/1 and e0/2 to be part of the inside interfaces
 int e0/1
@@ -33,10 +35,13 @@ ip address 192.168.21.1 255.255.255.0
 no shutdown
 ! Set interface vlan 1 name to 'inside'
 ! Using 'inside' name sets the security level to 100 automatically
-nameif inside
+nameif INSIDE
+security-level 100
+
+! DHCP--------------------------------------------------------------------------------
 
 ! DHCP (These devices have DHCP)
-! Enable DHCP daemon with 'dhcpd'
+ Enable DHCP daemon with 'dhcpd'
 
 ! Set a range of 32 addresses on the inside interface
 dhcpd address 192.168.21.101-192.168.21.102 inside
@@ -56,67 +61,48 @@ route inside 192.168.20.0 255.255.255.252 192.168.21.10
 ! Static route to network 192.168.20.4 (R1 and R2 Network)
 route inside 192.168.20.4 255.255.255.252 192.168.20.2
 
-! Add defualt static route to Wireless Router (WR) (Why route outside?) Still pings fine without this (Leave it off)
-route outside 0.0.0.0 0.0.0.0 192.168.21.11
+! Static route to L3-SW-ISP
+route outside 0.0.0.0 0.0.0.0 197.197.197.193 
+
+! Static route to 4.4.4.0 network
+route outside 4.4.4.0 255.255.255.0 197.197.197.193
 
 
-
-
-
-! EVERYTHING BELOW IS WORK IN PROGRESS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-! Route Below does not work
-! route outside 192.168.20.0 255.255.255.252 192.168.21.10
+! Static NAT and PAT
 
 ! Static NAT for PC 1 (IP: 192.168.21.101) to an IP Address of 197.197.197.195 (use netmask of /32 since this is a one to one mapping ie. one ip to one ip)
-static (inside,outside) 192.168.21.101 197.197.197.195 netmask 255.255.255.255
+static (INSIDE,OUTSIDE)  197.197.197.195 192.168.21.101 netmask 255.255.255.255
 
 ! Dynamic PAT for network
+global (OUTSIDE) 1 interface
+! Allow inside network to be translated (Allow the 21.0 network to be translated)
+nat (INSIDE) 1 192.168.21.0 255.255.255.0
+nat (INSIDE) 2 192.168.20.0 255.255.255.0
 
-nat (inside) 1 0.0.0.0 0.0.0.0 
-global (outside) 1 interface 
 
-nat (outside) 2 0.0.0.0 0.0.0.0 outside
-global (inside) 2 interface 
-
+! This opens up and allows everything (Use the NAT statements above though)
+nat (outside) 1 0.0.0.0 0.0.0.0 outside
+global (inside) 1 interface 
 
 ! ---------------- Work in Progress ------------------------------------------------------------------------
 
-! ACLS
+! ACLs (These were made in clas so they should be right)
 
-! Create an ACL named OUTSIDE-ACCESS-IN to allow ICMP and IP traffic from any source to any destination (Some commands are commented out but might be used later)
-! Currently only allowing ICMP and IP traffic from any source to any destination (This is a very open ACL)
-access-list OUTSIDE-ACCESS-IN line 1 extended permit icmp any any 
-access-list OUTSIDE-ACCESS-IN line 2 extended permit ip any any 
-!access-list OUTSIDE-ACCESS-IN line 3 extended permit icmp any host 197.197.197.195 echo-reply (hitcnt=0) 0xddd1f0cb 
-!access-list OUTSIDE-ACCESS-IN line 4 extended permit icmp any host 197.197.197.195 echo (hitcnt=0) 0xb2ee8333 
+! ACE for devices on the outside to access the web server (PC1) 
+access-list OUTSIDE-ACL extended permit tcp any host 197.197.197.195 eq www
+! ACE for devices on the outside to ping the web server (Not recommended in a production environment but is useful to test connectivity)
+access-list OUTSIDE-ACL extended permit icmp any host 197.197.197.195
+! Allow ping from 4.4.4.4 to go through the outside interface
+access-list OUTSIDE-ACL extended permit icmp any host 4.4.4.4
 
+! Apply the ACL in an inbound direction to the outside interface
+access-group OUTSIDE-ACL in interface OUTSIDE
 
-access-list INSIDE-ACCESS-IN line 1 extended permit icmp any any echo  
-access-list INSIDE-ACCESS-IN line 2 extended permit icmp any any echo-reply
-access-list INSIDE-ACCESS-IN line 3 extended permit ip any any 
+! ACE to Allow inside interfaces to ping devices on the outside
+access-list INSIDE-ACL extended permit ip any any
 
-! Apply the ACL to the inside interface in an inbound direction
-access-group INSIDE-ACCESS-IN in interface inside
-
-
-
-! Apply the ACL to the outside interface in an inbound direction
-access-group OUTSIDE-ACCESS-IN in interface outside
-
-
-! Make an ACL to allow http traffic from the oustside to access the web server (PC1) 
-access-list OUTSIDE-ACCESS-IN extended permit tcp any host 192.168.21.101 eq www
-access-list OUTSIDE-ACCESS-IN extended permit tcp any host 197.197.197.195 eq www
-
-
-
-! Make an ACL to allow traffic from the inside to the outside
-access-list INSIDE-ACCESS-OUTBOUND permit icmp any any
-access-list INSIDE-ACCESS-OUTBOUND permit ip any any
-
-! Apply the ACL to the inside interface in an outbound direction
-access-group INSIDE-ACCESS-OUTBOUND out interface inside
+! Apply the ACL in an inbound direction to the inside interface
+access-group INSIDE-ACL in interface INSIDE
 
 
 ! -------------------------------------------------------------------------------------------------------
