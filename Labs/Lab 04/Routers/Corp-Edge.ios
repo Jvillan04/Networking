@@ -88,6 +88,7 @@ permit 172.16.4.4 0.0.0.3
 permit 172.16.5.0 0.0.0.255
 permit 172.16.6.0 0.0.0.255
 permit 172.16.7.0 0.0.0.255
+permit 172.100.10.0 0.0.0.255
 ! Deny everything else 
 deny any
 ! Implement NAT and PAT by referencing NAT-ACL as the ip addresses to be NATed and PUBLIC-NAT-POOL as the pool of public ip addresses that these addresses will be translated to and to overload (PAT)
