@@ -10,17 +10,16 @@ service password-encryption
 
 
 
-! Configure the Interfaces]
+! Configure the Interfaces
 interface s0/0/0
-ip add 180.1.2.130 255.255.255.240 
+ip address 180.1.2.130 255.255.255.240 
 description "link to ISP"
-no shut
+no shutdown
 
 
-! InterVLAN Routing Configuration
+! InterVLAN Routing Configuration (#21)
 interface F0/0
- no ip address
- no shutdown
+no shutdown
 !
 interface F0/0.20
  encapsulation dot1Q 20
@@ -38,7 +37,26 @@ interface F0/0.22
  description "VLAN 22"
 ! This is the also the default gateway for the Swiches in the CorpA Network
 interface F0/0.23
- encapsulation dot1Q 23
+ encapsulation dot1Q 23 native
  ip address 172.28.23.1 255.255.255.0
  description "NetMgmt"
+exit 
+
+
+
+! DHCP Configuration (#10)
+
+! DHCP for VLAN 21
+! Exclude a range of addresses starting from the routers (.1) to .100 in order for the first address handed out to be .101
+ip dhcp excluded-address 172.28.21.1 172.28.21.100
+! Make a DHCP pool for VLAN 21 and name it VLAN21-POOL
+ip dhcp pool VLAN21-POOL
+! Specify the network that the DHCP pool will be handing out addresses for (172.168.21.0 /24)
+network 172.168.21.0 255.255.255.0
+! Specify the default gateway for the clients
+default-router 172.168.21.1
+! Make a domain name
+domain-name inetlab.com
+! Specify the DNS server for the clients (IP adderess of Corp-Server)
+dns-server 172.28.20.21
 

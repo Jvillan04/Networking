@@ -1,4 +1,8 @@
-
+en
+conf t
+hostname CorpA-SW2
+enable secret cisco
+service password-encryption
 
 
 
@@ -6,6 +10,46 @@
 
 
 ! VTP (#23) (Assign this Switch as the VTP Client)
-vtp mode server
+vtp mode client
 vtp domain CorpA
 vtp password cisco
+
+
+! Add the IP address to the switch in vlan 23 (Not the default VLAN 1)
+interface vlan 23
+ip address 172.28.23.12 255.255.255.0
+no shutdown
+
+! Configure the interfaces of the switch and lock them down with port security (#24)
+interface F0/11
+switchport mode access              
+switchport access vlan 21
+! Enable port security on this interface.        
+ switchport port-security
+! Allow a maximum of 3 MAC addresses to be learned.         
+ switchport port-security maximum 3
+! Restrict traffic if more than 3 MACs are detected.
+ switchport port-security violation restrict
+! Enable sticky learning of MAC addresses. (MAC addresses of devices connected to this port are learned automatically and stored in the running configuration.)
+ switchport port-security mac-address sticky
+!
+
+interface F0/12
+switchport mode access              
+switchport access vlan 22
+! Enable port security on this interface.        
+ switchport port-security
+! Allow a maximum of 3 MAC addresses to be learned.         
+ switchport port-security maximum 3
+! Restrict traffic if more than 3 MACs are detected.
+ switchport port-security violation restrict
+! Enable sticky learning of MAC addresses. (MAC addresses of devices connected to this port are learned automatically and stored in the running configuration.)
+ switchport port-security mac-address sticky
+
+! Configure the trunk link to the other switch Core-SW and ony allow VLANs 20, 21, 22, and 23
+interface F0/1
+description Link to CorpA-SW
+switchport mode trunk
+! Set VLAN 23 as the native VLAN on this trunk.
+switchport trunk native vlan 23
+switchport trunk allowed vlan 20,21,22,23
