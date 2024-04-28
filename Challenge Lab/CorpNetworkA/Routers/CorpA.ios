@@ -1,0 +1,44 @@
+! Start With a Basic Configuration first
+en
+conf t
+hostname CorpA
+enable secret cisco
+service password-encryption
+
+
+
+
+
+
+! Configure the Interfaces]
+interface s0/0/0
+ip add 180.1.2.130 255.255.255.240 
+description "link to ISP"
+no shut
+
+
+! InterVLAN Routing Configuration
+interface F0/0
+ no ip address
+ no shutdown
+!
+interface F0/0.20
+ encapsulation dot1Q 20
+ ip address 172.28.20.1 255.255.255.0
+ description "VLAN 20"
+!
+interface F0/0.21
+ encapsulation dot1Q 21
+ ip address 172.28.21.1 255.255.255.0
+ description "VLAN 21"
+!
+interface F0/0.22
+ encapsulation dot1Q 22
+ ip address 172.28.22.1 255.255.255.0
+ description "VLAN 22"
+! This is the also the default gateway for the Swiches in the CorpA Network
+interface F0/0.23
+ encapsulation dot1Q 23
+ ip address 172.28.23.1 255.255.255.0
+ description "NetMgmt"
+

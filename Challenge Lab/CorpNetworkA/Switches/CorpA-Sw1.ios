@@ -1,0 +1,9 @@
+
+
+
+! NOTE: 2960 Switches only support 802.1Q encapsulation, so no need to specify it.
+
+! VTP (#23) (Assign this Switch as the VTP Client)
+vtp mode server
+vtp domain CorpA
+vtp password cisco
