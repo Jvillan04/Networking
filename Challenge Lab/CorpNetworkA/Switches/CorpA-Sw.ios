@@ -5,13 +5,6 @@ enable secret cisco
 service password-encryption
 
 
-
-
-
-
-
-
-
 ! VTP (#23) (Assign this Switch as the VTP Server)
 vtp mode server
 vtp domain CorpA
@@ -52,3 +45,16 @@ switchport trunk native vlan 23
 switchport trunk allowed vlan 20,21,22,23
 no shutdown
 
+! Configure port security on F0/20
+interface F0/20
+switchport mode access              
+switchport access vlan 20
+! Enable port security on this interface.        
+switchport port-security
+! Allow a maximum of 3 MAC addresses to be learned.         
+switchport port-security maximum 3
+! Restrict traffic if more than 3 MACs are detected.
+switchport port-security violation restrict
+! Enable sticky learning of MAC addresses. (MAC addresses of devices connected to this port are learned automatically and stored in the running configuration.)
+switchport port-security mac-address sticky
+no shutdown

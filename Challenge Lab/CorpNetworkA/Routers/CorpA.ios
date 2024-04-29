@@ -6,7 +6,8 @@ enable secret cisco
 service password-encryption
 
 
-
+! Defualt Static Route to ISP router
+ip route 0.0.0.0 0.0.0.0 180.1.2.129
 
 
 
@@ -88,10 +89,11 @@ permit 172.28.21.0 0.0.0.255
 permit 172.28.22.0 0.0.0.255
 ! Permit the 172.28.23.0 /24 network
 permit 172.28.23.0 0.0.0.255
-! Deny everything else 
+! Deny everything else (Optional as it's implicit)
 deny any
+
 ! Configue PAT using the outside interface IP of S0/0/0 (180.1.2.130) 
-ip nat inside source list CORPA-NAT interface S0/0/0 overload
+ip nat inside source list CORPA-PAT interface S0/0/0 overload
 
 ! Designate the inside (Subinterfaces) and outside (Serial) interfaces for PAT
 
