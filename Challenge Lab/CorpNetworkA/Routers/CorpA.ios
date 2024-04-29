@@ -44,7 +44,7 @@ exit
 
 
 
-! DHCP Configuration (#10)
+! DHCP Configuration (#10) Only DHCP for VLANs 21 and 22
 
 ! DHCP for VLAN 21
 ! Exclude a range of addresses starting from the routers (.1) to .100 in order for the first address handed out to be .101
@@ -56,7 +56,56 @@ network 172.168.21.0 255.255.255.0
 ! Specify the default gateway for the clients
 default-router 172.168.21.1
 ! Make a domain name
-domain-name inetlab.com
+domain-name inetsec-corpA.local
 ! Specify the DNS server for the clients (IP adderess of Corp-Server)
 dns-server 172.28.20.21
 
+! DHCP for VLAN 22
+! Exclude a range of addresses starting from the routers (.1) to .100 in order for the first address handed out to be .101
+ip dhcp excluded-address 172.28.22.1 172.28.22.100
+! Make a DHCP pool for VLAN 21 and name it VLAN21-POOL
+ip dhcp pool VLAN21-POOL
+! Specify the network that the DHCP pool will be handing out addresses for (172.168.21.0 /24)
+network 172.168.22.0 255.255.255.0
+! Specify the default gateway for the clients
+default-router 172.168.22.1
+! Make a domain name
+domain-name inetsec-corpA.local
+! Specify the DNS server for the clients (IP adderess of Corp-Server)
+dns-server 172.28.20.21
+
+
+! PAT Configuration (#12)
+! Make a standard ACL and name it CORPA-PAT and go into the ACL configuration mode
+ip access-list standard CORPA-PAT
+! Add a description
+remark this is used for interface PAT
+! Permit the 172.28.20.0 /24 network
+permit 172.28.20.0 0.0.0.255
+! Permit the 172.28.21.0 /24 network
+permit 172.28.21.0 0.0.0.255
+! Permit the 172.28.22.0 /24 network
+permit 172.28.22.0 0.0.0.255
+! Permit the 172.28.23.0 /24 network
+permit 172.28.23.0 0.0.0.255
+! Deny everything else 
+deny any
+! Configue PAT using the outside interface IP of S0/0/0 (180.1.2.130) 
+ip nat inside source list CORPA-NAT interface S0/0/0 overload
+
+! Designate the inside (Subinterfaces) and outside (Serial) interfaces for PAT
+
+interface FastEthernet0/0.20
+ip nat inside
+!
+interface FastEthernet0/0.21
+ip nat inside
+!
+interface FastEthernet0/0.22
+ip nat inside
+!
+interface FastEthernet0/0.23
+ip nat inside
+!
+interface Serial0/0/0
+ip nat outside
