@@ -111,3 +111,47 @@ ip nat inside
 !
 interface Serial0/0/0
 ip nat outside
+
+
+! Configure Server-Based AAA (#18)
+
+! Create accounts: user1 with user mode access, user2 with privilege level 15 access
+! No need to specify the privilege level for user1 as it is the default (1)
+username user1 password cisco
+username user2 password cisco privilege 15
+
+! RADIUS Configuration
+! Enable AAA
+aaa new-model
+
+! Create new RADIUS server config named `CORP-SERVER` (Also brings you into config-radius-server mode)
+radius server CORP-SERVER
+
+! Specify the IPv4 Address of the RADIUS server (Corp-Server's IP address)
+address ipv4 172.28.20.21
+
+! Specify a key of CMPT420
+key CMPT420
+
+! Configure AAA Authentication
+! Default login authentication uses RADIUS; falls back to local if RADIUS server is unavailable
+aaa authentication login default group radius local
+
+
+! Enable AAA Authorization for user EXEC sessions
+! 'aaa authorization exec': Configures authorization for starting an EXEC session (interactive command-line access).
+! 'default': Applies this authorization method list as the default for all user EXEC sessions.
+! 'group radius': Specifies the RADIUS server group to be used for authorization.
+! Authorization determines what authenticated users are permitted to do within the session.
+! 'if-authenticated': Allows the session to start with previously authenticated credentials if the RADIUS server is unreachable for authorization.
+! This setup ensures that users who are authenticated but not authorized due to RADIUS server issues can still start a basic session.
+! It is crucial for maintaining access for troubleshooting while ensuring security via RADIUS for normal operations.
+aaa authorization exec default group radius if-authenticated
+
+
+! Configure AAA Accounting to keep track of user exec sessions (start-stop records)
+aaa accounting exec default start-stop group radius
+
+
+
+

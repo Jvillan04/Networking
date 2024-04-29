@@ -21,7 +21,7 @@ vlan 23
 name NetMgmt
 exit
 
-! Ensure that PoughS1 is the root bridge for vlans 20, 21, 22, and 23
+! Ensure that PoughS1 is the root bridge for vlans 20, 21, 22, and 23 (#3)
 spanning-tree vlan 20 root primary
 spanning-tree vlan 21 root primary
 spanning-tree vlan 22 root primary
@@ -58,3 +58,4 @@ switchport port-security violation restrict
 ! Enable sticky learning of MAC addresses. (MAC addresses of devices connected to this port are learned automatically and stored in the running configuration.)
 switchport port-security mac-address sticky
 no shutdown
+
