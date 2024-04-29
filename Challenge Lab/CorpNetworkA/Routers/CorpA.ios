@@ -115,10 +115,10 @@ ip nat outside
 
 ! Configure Server-Based AAA (#18)
 
-! Create accounts: user1 with user mode access, user2 with privilege level 15 access
+! Create local accounts: user1 with user mode access, user2 with privilege level 15 access
 ! No need to specify the privilege level for user1 as it is the default (1)
-username user1 password cisco
-username user2 password cisco privilege 15
+username user1 secret cisco
+username user2 secret cisco privilege 15
 
 ! RADIUS Configuration
 ! Enable AAA
@@ -151,6 +151,36 @@ aaa authorization exec default group radius if-authenticated
 
 ! Configure AAA Accounting to keep track of user exec sessions (start-stop records)
 aaa accounting exec default start-stop group radius
+
+
+! SYSLOG Configuration (#19)
+! The CorpA router 
+
+
+
+
+! SSH Configuration (#9)
+!SSH
+ip domain-name inetsec-corpA.local
+crypto key generate rsa
+2048
+ip ssh version 2
+
+! Configure lines without specifying additional passwords (Local Accounts were configured in the AAA section above and will be used for SSH authentication)
+line con 0
+! Use the default AAA login authentication method configured in line 138 (If RADIUS is unavailable, it will fall back to local)
+ login authentication default
+ logging synchronous
+ ! Log out after 10 minutes of inactivity
+ exec-timeout 10 0
+line vty 0 4
+! Use the default AAA login authentication method configured in line 138 (If RADIUS is unavailable, it will fall back to local)
+ login authentication default
+ logging synchronous
+ transport input ssh
+ ! Log out after 10 minutes of inactivity
+ exec-timeout 10 0
+exit
 
 
 

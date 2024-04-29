@@ -21,7 +21,7 @@ permit ip 192.168.202.0 0.0.0.255 host 172.100.10.10
 ! Deny all other traffic 
 deny ip any any
 
-! Aplly the ACL to the interface vlan 10 in an outbound direction
+! Apply the ACL to the interface vlan 10 in an outbound direction
 int vlan 10
 ip access-group AAA-Access out
 
