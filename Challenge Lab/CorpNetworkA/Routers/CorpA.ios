@@ -154,9 +154,7 @@ aaa accounting exec default start-stop group radius
 
 
 ! SYSLOG Configuration (#19)
-! The CorpA router 
-
-
+! The CorpA router will send syslog messages to the Corp-Server 
 
 
 ! SSH Configuration (#9)
@@ -182,6 +180,19 @@ line vty 0 4
  exec-timeout 10 0
 exit
 
+! Construct an access list only allowing Corp-Mgmt (IP: 172.28.20.21/24) to SSH into device
+! Create an extended named ACL named SSH-Access and go into the ACL configuration mode
+ip access-list extended SSH-Access
+remark allow SSH from Corp-Server only via SSH (Port 22)
+! Allows SSH from Corp-Mgmt PC to any of Corp's IP addresses (Allow SSH to Device itself)
+permit tcp host 172.28.20.21 any eq 22
+! Deny all other SSH traffic
+deny tcp any any eq 22
+! Permit all other traffic to ensure that the ACL does not inadvertently block non-SSH traffic
+permit ip any any
 
 
-
+! Apply this to the virtual terminal lines configured above in an inbound direction (Going into the router)
+line vty 0 4
+access-class SSH-Access in
+exit
