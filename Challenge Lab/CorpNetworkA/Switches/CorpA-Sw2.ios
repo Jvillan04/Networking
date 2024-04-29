@@ -53,3 +53,88 @@ switchport mode trunk
 ! Set VLAN 23 as the native VLAN on this trunk.
 switchport trunk native vlan 23
 switchport trunk allowed vlan 20,21,22,23
+exit
+
+! Configure Server-Based AAA (#18)
+
+! Create local accounts: user1 with user mode access, user2 with privilege level 15 access
+! No need to specify the privilege level for user1 as it is the default (1)
+username user1 secret cisco
+username user2 secret cisco privilege 15
+
+! RADIUS Configuration
+! Enable AAA
+aaa new-model
+
+! Create new RADIUS server config named `CORP-SERVER` (Also brings you into config-radius-server mode)
+radius server CORP-SERVER
+
+! Specify the IPv4 Address of the RADIUS server (Corp-Server's IP address)
+address ipv4 172.28.20.21
+
+! Specify a key of CMPT420
+key CMPT420
+
+! Configure AAA Authentication
+! Default login authentication uses RADIUS; falls back to local if RADIUS server is unavailable
+aaa authentication login default group radius local
+
+
+! Enable AAA Authorization for user EXEC sessions
+! 'aaa authorization exec': Configures authorization for starting an EXEC session (interactive command-line access).
+! 'default': Applies this authorization method list as the default for all user EXEC sessions.
+! 'group radius': Specifies the RADIUS server group to be used for authorization.
+! Authorization determines what authenticated users are permitted to do within the session.
+! 'if-authenticated': Allows the session to start with previously authenticated credentials if the RADIUS server is unreachable for authorization.
+! This setup ensures that users who are authenticated but not authorized due to RADIUS server issues can still start a basic session.
+! It is crucial for maintaining access for troubleshooting while ensuring security via RADIUS for normal operations.
+aaa authorization exec default group radius if-authenticated
+
+
+! Configure AAA Accounting to keep track of user exec sessions (start-stop records)
+aaa accounting exec default start-stop group radius
+
+
+! SYSLOG Configuration (#19)
+! The CorpA router will send syslog messages to the Corp-Server 
+
+
+! SSH Configuration (#9)
+!SSH
+ip domain-name inetsec-corpA.local
+crypto key generate rsa
+2048
+ip ssh version 2
+
+! Configure lines without specifying additional passwords (Local Accounts were configured in the AAA section above and will be used for SSH authentication)
+line con 0
+! Use the default AAA login authentication method configured in line 138 (If RADIUS is unavailable, it will fall back to local)
+ login authentication default
+ logging synchronous
+ ! Log out after 10 minutes of inactivity
+ exec-timeout 10 0
+line vty 0 4
+! Use the default AAA login authentication method configured in line 138 (If RADIUS is unavailable, it will fall back to local)
+ login authentication default
+ logging synchronous
+ transport input ssh
+ ! Log out after 10 minutes of inactivity
+ exec-timeout 10 0
+exit
+
+! Construct an access list only allowing Corp-Mgmt (IP: 172.28.20.21/24) to SSH into device
+! Create an extended named ACL named SSH-Access and go into the ACL configuration mode
+ip access-list extended SSH-Access
+remark allow SSH from Corp-Server only via SSH (Port 22)
+! Allows SSH from Corp-Mgmt PC to any of Corp's IP addresses (Allow SSH to Device itself)
+permit tcp host 172.28.20.21 any eq 22
+! Deny all other SSH traffic
+deny tcp any any eq 22
+! Permit all other traffic to ensure that the ACL does not inadvertently block non-SSH traffic
+permit ip any any
+
+
+! Apply this to the virtual terminal lines configured above in an inbound direction (Going into the router)
+line vty 0 4
+access-class SSH-Access in
+exit

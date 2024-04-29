@@ -153,9 +153,6 @@ aaa authorization exec default group radius if-authenticated
 aaa accounting exec default start-stop group radius
 
 
-! SYSLOG Configuration (#19)
-! The CorpA router will send syslog messages to the Corp-Server 
-
 
 ! SSH Configuration (#9)
 !SSH
@@ -196,3 +193,32 @@ permit ip any any
 line vty 0 4
 access-class SSH-Access in
 exit
+
+
+
+! NTP (#20)
+! Configure NTP server (Corp-Server's IP address: 172.28.20.21)
+ntp server 172.28.20.21
+
+! Enable NTP authentication
+ntp authenticate
+
+! Configure NTP authentication key (Key ID: 10, Key: cisco)
+ntp authentication-key 10 md5 cisco
+
+! Specify trusted NTP server with the authentication key
+ntp trusted 10
+
+! Re-associate the NTP server with authentication key
+ntp server 172.28.20.21 key 10
+
+! Update system calendar with NTP time
+ntp update-calendar
+
+! Enable timestamps on log messages with milliseconds and local time zone (ex: 2024-04-20 15:00:00.000 EST)
+service timestamps log datetime msec localtime show-timezone
+
+! Syslog (#19)
+logging host 172.28.20.21
+! CorpA Router should send it's logs to the Corp-Server when any configuration change has been made (or simply entering or exiting privilege mode)
+logging trap informational
