@@ -207,7 +207,7 @@ ntp authenticate
 ntp authentication-key 10 md5 cisco
 
 ! Specify trusted NTP server with the authentication key
-ntp trusted 10
+ntp trusted-key 10
 
 ! Re-associate the NTP server with authentication key
 ntp server 172.28.20.21 key 10
@@ -217,8 +217,11 @@ ntp update-calendar
 
 ! Enable timestamps on log messages with milliseconds and local time zone (ex: 2024-04-20 15:00:00.000 EST)
 service timestamps log datetime msec localtime show-timezone
+service timestamps debug datetime msec localtime show-timezone
 
 ! Syslog (#19)
 logging host 172.28.20.21
 ! CorpA Router should send it's logs to the Corp-Server when any configuration change has been made (or simply entering or exiting privilege mode)
 logging trap informational
+
+

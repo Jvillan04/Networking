@@ -144,3 +144,40 @@ permit ip any any
 line vty 0 4
 access-class SSH-Access in
 exit
+
+! NTP (#20)
+! Configure NTP server (Corp-Server's IP address: 172.28.20.21)
+ntp server 172.28.20.21
+
+! Enable NTP authentication
+ntp authenticate
+
+! Configure NTP authentication key (Key ID: 10, Key: cisco)
+ntp authentication-key 10 md5 cisco
+
+! Specify trusted NTP server with the authentication key
+ntp trusted-key 10
+
+! Re-associate the NTP server with authentication key
+ntp server 172.28.20.21 key 10
+
+! Update system calendar with NTP time
+ntp update-calendar
+
+! Enable timestamps on log messages with milliseconds and local time zone (ex: 2024-04-20 15:00:00.000 EST)
+service timestamps log datetime msec localtime show-timezone
+service timestamps debug datetime msec localtime show-timezone
+
+! Primitive Firewall (#15)
+! On the CorpA site, all traffic destined for the internet should use a primitive form of firewall
+! to establish a stateful connection forom within the network to the internet
+
+! Enable inspection of TCP, UDP, and ICMP traffic (Name the inspection rule FIREWALL)
+ip inspect name FIREWALL tcp
+ip inspect name FIREWALL udp
+ip inspect name FIREWALL icmp
+
+! Apply the inspection rule to the inside interface (F0/0) in an outbound direction
+interface F0/0
+ip inspect FIREWALL out
+
