@@ -38,10 +38,11 @@ no shutdown
 ! Default Static Route to ISP Router (S0/0/1 adddress on ISP router) (#5)
 ip route 0.0.0.0 0.0.0.0 180.1.2.145
 
-! OSPF Configuration (#6)
-! OSPF Configuration
+! OSPF Configuration (Dynamic Routing #6)
 router ospf 1
-! Advertise the following networks into OSPF area 0
-network  area 0
+! Set Loopback Address as Static router-ID <Loopback IP>
+router-id 
+! Advertise the following networks into OSPF area 0 <NetAddr> <Wildcard Mask>
+network   area 0
 ! Apply OSPF Authentication to OSPF area 0
 area 0 authentication message-digest
