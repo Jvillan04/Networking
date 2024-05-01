@@ -45,6 +45,8 @@ ip route 0.0.0.0 0.0.0.0 180.1.2.145
 router ospf 1
 ! Set Loopback Address as Static router-ID <Loopback IP>
 router-id 172.28.99.100
+! Advertise a default route into OSPF
+default-information originate
 ! Advertise the following networks into OSPF area 0 <NetAddr> <Wildcard Mask>
 network 172.28.30.0 0.0.0.255 area 0
 network 192.168.30.0 0.0.0.255 area 0
@@ -52,3 +54,43 @@ network 172.28.31.32 0.0.0.3 area 0
 network 172.28.31.40 0.0.0.3 area 0
 ! Apply OSPF Authentication to OSPF area 0
 area 0 authentication message-digest
+!
+exit
+
+! (#12) Port Address Translation (PAT) should be configured to use a pool of 10 addresses on the CorpB router:
+! Public Network Address:180.1.2.144 /28   Usable Host Range: 180.1.2.145 - 180.1.2.158 (Broadcast Address: 180.1.2.159)
+!Configure NAT and PAT pool of 10 addresses starting from 180.1.2.148 to 180.1.2.157 (inclusive)
+ip nat pool CORPB-POOL 180.1.2.148 180.1.2.157 netmask 255.255.255.240
+! Make a standard ACL and name it CORPB-NAT-ACL
+ip access-list standard CORPB-NAT-ACL
+! Add a description
+remark this is used for outbound PAT (Address Translation)
+! Define the private networks that will be translated: permit <NetAddr> <Wildcard Mask> (All RFC1918 addresses within the CorpB LAN)
+permit 172.28.30.0 0.0.0.255
+permit 192.168.30.0 0.0.0.255
+permit 172.28.31.32 0.0.0.3
+permit 172.28.31.36 0.0.0.3
+permit 172.28.31.40 0.0.0.3
+! Deny everything else 
+deny any
+! Apply NAT using the defined pool and enable PAT (overload)
+ip nat inside source list CORPB-NAT-ACL pool CORPB-POOL overload
+! PAT is used to allow multiple private ip addresses to be translated to a single public ip address
+! Apply the NAT configuration to the inside interfaces connected to the private network (Addresses that will be NATed)
+interface S0/0/0
+ip nat inside
+interface S0/1/0
+ip nat inside
+interface F0/0
+ip nat inside
+interface F0/1
+ip nat inside
+! Apply the NAT configuration to the outside interface connected to public network
+interface S0/0/1
+ip nat outside
+
+
+! (#13) HTTP Server Static NAT Configuration
+
+
+! (#14) FTP Server Static NAT Configuration
