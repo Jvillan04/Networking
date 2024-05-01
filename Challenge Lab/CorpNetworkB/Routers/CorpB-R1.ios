@@ -1,12 +1,14 @@
 en
 conf t
 hostname CorpB
+enable secret cisco
+service password-encryption
 
 
 
 ! Inteface configuration
 interface Lo0
-ip add 172.28.99.101 255.255.255.255
+ip address 172.28.99.101 255.255.255.255
 ip ospf message-digest-key 1 md5 cisco
 no shutdown
 
@@ -26,15 +28,12 @@ ip ospf message-digest-key 1 md5 cisco
 clock rate 2000000
 no shutdown
 
-! Default Static Route to ISP Router (S0/0/1 adddress on ISP router) (#5)
-ip route 0.0.0.0 0.0.0.0 180.1.2.145
 
 ! OSPF Configuration (Dynamic Routing #6)
 router ospf 1
 ! Set Loopback Address as Static router-ID <Loopback IP>
-router-id 172.28.99.100
+router-id 172.28.99.101
 ! Advertise Default Route into OSPF (Default Route #7)
-default-information originate
 ! Advertise the following networks into OSPF area 0 <NetAddr> <Wildcard Mask>
 network 172.28.30.0 0.0.0.255 area 0
 network 192.168.30.0 0.0.0.255 area 0

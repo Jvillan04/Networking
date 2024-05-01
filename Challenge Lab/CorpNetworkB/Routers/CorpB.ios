@@ -1,12 +1,13 @@
 en
 conf t
 hostname CorpB
-
+enable secret cisco
+service password-encryption
 
 
 ! Inteface configuration
 interface Lo0
-ip add 172.28.99.100 255.255.255.255
+ip address 172.28.99.100 255.255.255.255
 ip ospf message-digest-key 1 md5 cisco
 no shutdown
 
