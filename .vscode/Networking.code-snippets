@@ -50,8 +50,10 @@
 		"body": [	
 				"! OSPF Configuration",
 				"router ospf 1",
-				"! Advertise the following networks into OSPF area 0",
-				"network $1 area 0",
+				"! Set Loopback Address as Static router-ID <Loopback IP>",
+				"router-id $1",
+				"! Advertise the following networks into OSPF area 0 <NetAddr> <Wildcard Mask>",
+				"network $2 $3 area 0",
 				"! Apply OSPF Authentication to OSPF area 0",
 				"area 0 authentication message-digest"
 		],
@@ -91,9 +93,9 @@
 		"scope": "cisco",
 		"prefix": ["interface", "int"],
 		"body": [
-			"int $1",
-			"ip add $2 $3",
-			"no shut"
+			"interface $1",
+			"ip address $2 $3",
+			"no shutdown"
 		],
 		"description": "Configure an interface"
 	},
@@ -420,6 +422,27 @@
 		],
 
 
-	}
+	},
+
+	"DHCP":{
+		"scope": "cisco",
+		"prefix": ["DHCP"],
+		"body": [
+			"! DHCP for VLAN 22",
+			"! Exclude a range of addresses <ip address> <ip address>",
+			"ip dhcp excluded-address $1 $2",
+			"! Make a DHCP pool for <...> and name it <DCHP Pool Name>",
+			"ip dhcp pool $3",
+			"! Specify the network that the DHCP pool will be handing out addresses for (<NetAdd> /)",
+			"network $4 $5",
+			"! Specify the default gateway for the clients",
+			"default-router $6",
+			"! Make a domain name",
+			"domain-name $7",
+			"! Specify the DNS server for the clients (IP adderess of Corp-Server)",
+			"dns-server $8:"
+
+		]
+	}	
 	
 }

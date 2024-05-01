@@ -6,7 +6,7 @@ enable secret cisco
 service password-encryption
 
 
-! Defualt Static Route to ISP router
+! Defualt Static Route to ISP router (#5)
 ip route 0.0.0.0 0.0.0.0 180.1.2.129
 
 
@@ -223,5 +223,4 @@ service timestamps debug datetime msec localtime show-timezone
 logging host 172.28.20.21
 ! CorpA Router should send it's logs to the Corp-Server when any configuration change has been made (or simply entering or exiting privilege mode)
 logging trap informational
-
 
