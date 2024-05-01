@@ -23,6 +23,7 @@ no shutdown
 interface S0/0/0
 ip address 172.28.31.33 255.255.255.252
 ip ospf message-digest-key 1 md5 cisco
+clock rate 2000000
 no shutdown
 
 ! No MD5 authentication on S0/1/0 (This interface is connected to ISP router)
@@ -33,6 +34,7 @@ no shutdown
 interface S0/1/0
 ip address 172.28.31.42 255.255.255.252
 ip ospf message-digest-key 1 md5 cisco
+clock rate 2000000
 no shutdown
 
 ! Default Static Route to ISP Router (S0/0/1 adddress on ISP router) (#5)
@@ -41,8 +43,11 @@ ip route 0.0.0.0 0.0.0.0 180.1.2.145
 ! OSPF Configuration (Dynamic Routing #6)
 router ospf 1
 ! Set Loopback Address as Static router-ID <Loopback IP>
-router-id 
+router-id 172.28.99.100
 ! Advertise the following networks into OSPF area 0 <NetAddr> <Wildcard Mask>
-network   area 0
+network 172.28.30.0 0.0.0.255 area 0
+network 192.168.30.0 0.0.0.255 area 0
+network 172.28.31.32 0.0.0.3 area 0
+network 172.28.31.40 0.0.0.3 area 0
 ! Apply OSPF Authentication to OSPF area 0
 area 0 authentication message-digest
