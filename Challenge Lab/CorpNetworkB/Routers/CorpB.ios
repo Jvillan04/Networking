@@ -180,7 +180,7 @@ ip access-group SERVER-ACCESS out
 ! All traffic from the CorpB LAN should be able to initiate traffic to the DMZ and to the internet
 ! The servers in the DMZ should not be able to initiate traffic to the CorpB LAN (Established keyword may be useful here)
 
-! Create an ACL to permit return  traffic from (established connections)  using the `established` keyword   
+! Create an acl to return traffic to the LAN or the internet (established), don't allow these servers to initiate traffic 
 ip access-list extended RESPONSE-TRAFFIC
 permit tcp any any established
 deny ip any any
