@@ -37,8 +37,11 @@ ip address 172.28.31.42 255.255.255.252
 ip ospf message-digest-key 1 md5 cisco
 clock rate 2000000
 no shutdown
+!
+exit
 
 ! SSH Configuration (#9) -------------------------------------------------------------------------------------------------
+username cisco secret cisco
 !SSH
 ip domain-name inetsec-corpB.local
 crypto key generate rsa
@@ -166,32 +169,29 @@ permit tcp 192.168.30.0 0.0.0.255 192.168.30.200 0.0.0.0 eq 20
 permit tcp 172.28.31.32 0.0.0.3 192.168.30.200 0.0.0.0 eq 20
 permit tcp 172.28.31.36 0.0.0.3 192.168.30.200 0.0.0.0 eq 20
 permit tcp 172.28.31.40 0.0.0.3 192.168.30.200 0.0.0.0 eq 20
-permit tcp 180.1.2.80 0.0.0.7 192.168.30.200 0.0.0.0 eq 21
+permit tcp 180.1.2.80 0.0.0.7 192.168.30.200 0.0.0.0 eq 20
 deny ip any any
 
 ! Apply the ACL in an outbound direction on interface F0/1 (Interface connected to the servers)
 interface F0/1
 ip access-group SERVER-ACCESS out
 
-! (#8) DMZ Access Control List Configuration --------------------------------------------------------------------------------
-! All traffic from the CorpB LAB should be able to initiate traffic to the DMZ and to the internet
-! The servers in the DM should not be able to initiate traffic to the CorpB LAN (Established keyword may be useful here)
+! (#8) DMZ Access Control List Configuration ----------------------------------------- ----------------------------------------------------
+! All traffic from the CorpB LAN should be able to initiate traffic to the DMZ and to the internet
+! The servers in the DMZ should not be able to initiate traffic to the CorpB LAN (Established keyword may be useful here)
 
-! Create an extended ACL named DMZ-ACL
-ip access-list extended DMZ-ACL
-! Add a description
-remark Allow traffic from CorpB LAN to DMZ and Internet
-! Allow traffic from the CorpB LAN to the DMZ
-permit ip
-! Allow traffic from the CorpB LAN to the Internet
-permit ip
-! Deny traffic from the DMZ to the CorpB LAN
-deny ip
-! Permit all other traffic
-permit ip any any
+! Create an ACL to permit return  traffic from (established connections)  using the `established` keyword   
+ip access-list extended RESPONSE-TRAFFIC
+permit tcp any any established
+deny ip any any
+remark Allow return traffic
+
+! Apply the ACLs to the outside interface
+interface F0/1
+ip access-group RESPONSE-TRAFFIC in
 
 
-! Zone Based Firewall Configuration (#16) -----------------------------------------------------------------------------------------
+! Zone Based Firewall Configuration (#16) ------------------------------------------------------------------------------------------------
 
 ! The CorpB router should be configured as a ZPF
 ! All traffic from the internet to the CorpB LAN should be denied by default

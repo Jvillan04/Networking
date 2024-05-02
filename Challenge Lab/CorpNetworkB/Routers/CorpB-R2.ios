@@ -8,33 +8,31 @@ service password-encryption
 
 ! Inteface configuration
 interface Lo0
-ip address 172.28.99.101 255.255.255.255
+ip address 172.28.99.102 255.255.255.255
 ip ospf message-digest-key 1 md5 cisco
 no shutdown
 
-interface S0/0/0
-ip address 172.28.31.34 255.255.255.252
+interface S0/1/0
+ip address 172.28.31.41 255.255.255.252
 ip ospf message-digest-key 1 md5 cisco
 no shutdown
 
 interface S0/0/1
 ip address 172.28.31.37 255.255.255.252
 ip ospf message-digest-key 1 md5 cisco
-clock rate 2000000
 no shutdown
 
 ! OSPF Configuration (Dynamic Routing #6)
 router ospf 1
 ! Set Loopback Address as Static router-ID <Loopback IP>
-router-id 172.28.99.101
+router-id 172.28.99.102
 ! Advertise the following networks into OSPF area 0 <NetAddr> <Wildcard Mask>
-network 172.28.31.32 0.0.0.3 area 0
+network 172.28.31.40 0.0.0.3 area 0
 network 172.28.31.36 0.0.0.3 area 0
 ! Apply OSPF Authentication to OSPF area 0
 area 0 authentication message-digest
 !
 exit
-
 
 ! SSH Configuration (#9) -------------------------------------------------------------------------------------------------
 username cisco secret cisco
@@ -74,6 +72,4 @@ permit ip any any
 line vty 0 4
 access-class SSH-Access in
 exit
-
-
 
