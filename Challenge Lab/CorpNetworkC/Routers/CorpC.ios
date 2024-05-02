@@ -60,5 +60,8 @@ line vty 0 4
 access-class SSH-Access in
 exit
 
+
+
+
 ! Primitive Firewall
 ! All traffic from the the internet to the CorpC LAN should be denied by default
