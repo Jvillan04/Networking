@@ -62,6 +62,7 @@ exit
 
 ! (#12) Dynamic NAT and PAT
 
+
 ! (#15) Primitive Firewall
 ! All traffic from the the internet to the CorpC LAN should be denied by default
 ! Create an ACL to restrict internet access to HTTP/HTTPS connectivity to the internet 
