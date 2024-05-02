@@ -5,7 +5,7 @@ enable secret cisco
 service password-encryption
 
 !Set the Default Gateway to <Router IP>
-ip default-gateway 192.168.30.1
+ip default-gateway 172.28.30.1
 
 interface F0/1
 no shutdown
@@ -20,7 +20,7 @@ vlan 23
 name NetMgmt
 !
 interface vlan 23
-ip address 192.168.30.10 255.255.255.0
+ip address 172.28.30.10 255.255.255.0
 no shutdown
 !
 exit
@@ -54,7 +54,7 @@ exit
 ip access-list extended SSH-Access
 remark allow SSH from Corp-Server only via SSH (Port 22)
 ! Allows SSH from one PC to any of CorpB's IP addresses (Allow SSH to Device itself)
-permit tcp host 192.168.30.200 any eq 22
+permit tcp host 172.28.30.101 any eq 22
 ! Deny all other SSH traffic
 deny tcp any any eq 22
 ! Permit all other traffic to ensure that the ACL does not inadvertently block non-SSH traffic
@@ -64,3 +64,5 @@ permit ip any any
 line vty 0 4
 access-class SSH-Access in
 exit
+
+! Maybe put unused interface in a BlackHole VLAN
