@@ -60,8 +60,29 @@ line vty 0 4
 access-class SSH-Access in
 exit
 
+! (#12) Dynamic NAT and PAT
 
-
-
-! Primitive Firewall
+! (#15) Primitive Firewall
 ! All traffic from the the internet to the CorpC LAN should be denied by default
+! Create an ACL to restrict internet access to HTTP/HTTPS connectivity to the internet 
+ip access-list extended INTERNET-ACCESS
+permit tcp any any eq 80
+permit tcp any any eq 443
+deny ip any any
+remark Allow HTTP traffic to the internet from the inside network
+
+! Example of ACL with 'established' keyword in NetAcad Chapter 8.3.7
+! ACL to permit return traffic initiated by LAN, but dney traffic if it is initiated from the Internet to the CorpC LAN
+ip access-list extended RESPONSE-TRAFFIC
+permit tcp any any established
+deny ip any any
+remark Allow return HTTP traffic from requested websites
+
+! Apply the ACLs to the outside interface
+ip access-group INTERNET-ACCESS out
+ip access-group RESPONSE-TRAFFIC in
+
+! (#17) Local AAA
+
+
+! 
