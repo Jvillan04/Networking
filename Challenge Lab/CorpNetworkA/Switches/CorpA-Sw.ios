@@ -132,7 +132,7 @@ exit
 ! Create an extended named ACL named SSH-Access and go into the ACL configuration mode
 ip access-list extended SSH-Access
 remark allow SSH from Corp-Server only via SSH (Port 22)
-! Allows SSH from Corp-Mgmt PC to any of Corp's IP addresses (Allow SSH to Device itself)
+! Allows SSH from one PC to any of CorpA's IP addresses (Allow SSH to Device itself)
 permit tcp host 172.28.20.21 any eq 22
 ! Deny all other SSH traffic
 deny tcp any any eq 22
@@ -167,17 +167,4 @@ ntp update-calendar
 ! Enable timestamps on log messages with milliseconds and local time zone (ex: 2024-04-20 15:00:00.000 EST)
 service timestamps log datetime msec localtime show-timezone
 service timestamps debug datetime msec localtime show-timezone
-
-! Primitive Firewall (#15)
-! On the CorpA site, all traffic destined for the internet should use a primitive form of firewall
-! to establish a stateful connection forom within the network to the internet
-
-! Enable inspection of TCP, UDP, and ICMP traffic (Name the inspection rule FIREWALL)
-ip inspect name FIREWALL tcp
-ip inspect name FIREWALL udp
-ip inspect name FIREWALL icmp
-
-! Apply the inspection rule to the inside interface (F0/0) in an outbound direction
-interface F0/0
-ip inspect FIREWALL out
 

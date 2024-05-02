@@ -38,10 +38,51 @@ ip ospf message-digest-key 1 md5 cisco
 clock rate 2000000
 no shutdown
 
-! Default Static Route to ISP Router (S0/0/1 adddress on ISP router) (#5)
+! SSH Configuration (#9) -------------------------------------------------------------------------------------------------
+!SSH
+ip domain-name inetsec-corpB.local
+crypto key generate rsa
+2048
+ip ssh version 2
+
+! Configure lines without specifying additional passwords (Local Accounts were configured in the AAA section above and will be used for SSH authentication)
+line con 0
+ login local
+ logging synchronous
+ ! Log out after 10 minutes of inactivity
+ exec-timeout 10 0
+line vty 0 4
+ login local
+ logging synchronous
+ transport input ssh
+ ! Log out after 10 minutes of inactivity
+ exec-timeout 10 0
+exit
+
+
+! Construct an access list only allowing Corp-Mgmt (IP: 172.28.30.101/24) to SSH into device
+! Create an extended named ACL named SSH-Access and go into the ACL configuration mode
+ip access-list extended SSH-Access
+remark allow SSH from Corp-Server only via SSH (Port 22)
+! Allows SSH from one PC to any of CorpB's IP addresses (Allow SSH to Device itself)
+permit tcp host 172.28.30.101 any eq 22
+! Deny all other SSH traffic
+deny tcp any any eq 22
+! Permit all other traffic to ensure that the ACL does not inadvertently block non-SSH traffic
+permit ip any any
+
+! Apply this to the virtual terminal lines configured above in an inbound direction (Going into the router)
+line vty 0 4
+access-class SSH-Access in
+exit
+
+
+
+
+! Default Static Route to ISP Router (S0/0/1 adddress on ISP router) (#5) ------------------------------------------------
 ip route 0.0.0.0 0.0.0.0 180.1.2.145
 
-! OSPF Configuration (Dynamic Routing #6)
+! OSPF Configuration (Dynamic Routing #6) ---------------------------------------------------------------------------------
 router ospf 1
 ! Set Loopback Address as Static router-ID <Loopback IP>
 router-id 172.28.99.100
@@ -57,10 +98,10 @@ area 0 authentication message-digest
 !
 exit
 
-! (#12) Port Address Translation (PAT) should be configured to use a pool of 10 addresses on the CorpB router:
+! (#12) Port Address Translation (PAT) should be configured to use a pool of 10 addresses on the CorpB router: ---------------------------------------------
 ! Public Network Address:180.1.2.144 /28   Usable Host Range: 180.1.2.145 - 180.1.2.158 (Broadcast Address: 180.1.2.159)
-!Configure NAT and PAT pool of 10 addresses starting from 180.1.2.148 to 180.1.2.157 (inclusive)
-ip nat pool CORPB-POOL 180.1.2.148 180.1.2.157 netmask 255.255.255.240
+!Configure NAT and PAT pool of 10 addresses starting from 180.1.2.147 to 180.1.2.156 (inclusive)
+ip nat pool CORPB-POOL 180.1.2.147 180.1.2.156 netmask 255.255.255.240
 ! Make a standard ACL and name it CORPB-NAT-ACL
 ip access-list standard CORPB-NAT-ACL
 ! Add a description
@@ -88,9 +129,72 @@ ip nat inside
 ! Apply the NAT configuration to the outside interface connected to public network
 interface S0/0/1
 ip nat outside
+!
+exit
+
+! (#13) HTTP Server Static NAT Configuration -------------------------------------------------------------------------------
+! Static NAT <InsideLocal> <OutsideLocal> map HTTP server IP to public IP of 180.1.2.157
+ip nat inside source static 192.168.30.100 180.1.2.157
+! All traffic destined for this server via HTTP should be permitted from either CorpB's LAN or the Internet
 
 
-! (#13) HTTP Server Static NAT Configuration
+
+! (#14) FTP Server Static NAT Configuration --------------------------------------------------------------------------------
+! Static NAT <InsideLocal> <OutsideLocal> map FTP server IP to public IP of 180.1.2.158
+ip nat inside source static 192.168.30.100 180.1.2.158
+! All traffic destined for this server via FTP should be permitted from either CorpB's LAN or the Internet (FTP uses port 21 and 20)
 
 
-! (#14) FTP Server Static NAT Configuration
+! For Steps 13 and 14, create one ACL for both servers (Reason why is becuase cisco ios allows only one access list per protocol, per direction, per interface. )
+ip access-list extended SERVER-ACCESS
+remark Allow HTTP traffic to the HTTP server
+permit tcp 172.28.30.0 0.0.0.255 192.168.30.100 0.0.0.0 eq 80
+permit tcp 192.168.30.0 0.0.0.255 192.168.30.100 0.0.0.0 eq 80
+permit tcp 172.28.31.32 0.0.0.3 192.168.30.100 0.0.0.0 eq 80
+permit tcp 172.28.31.36 0.0.0.3 192.168.30.100 0.0.0.0 eq 80
+permit tcp 172.28.31.40 0.0.0.3 192.168.30.100 0.0.0.0 eq 80
+permit tcp 180.1.2.80 0.0.0.7 192.168.30.100 0.0.0.0 eq 80
+remark Allow FTP control (port 21)and data (port 20) traffic to the FTP server
+permit tcp 172.28.30.0 0.0.0.255 192.168.30.200 0.0.0.0 eq 21
+permit tcp 192.168.30.0 0.0.0.255 192.168.30.200 0.0.0.0 eq 21
+permit tcp 172.28.31.32 0.0.0.3 192.168.30.200 0.0.0.0 eq 21
+permit tcp 172.28.31.36 0.0.0.3 192.168.30.200 0.0.0.0 eq 21
+permit tcp 172.28.31.40 0.0.0.3 192.168.30.200 0.0.0.0 eq 21
+permit tcp 180.1.2.80 0.0.0.7 192.168.30.200 0.0.0.0 eq 21
+permit tcp 172.28.30.0 0.0.0.255 192.168.30.200 0.0.0.0 eq 20
+permit tcp 192.168.30.0 0.0.0.255 192.168.30.200 0.0.0.0 eq 20
+permit tcp 172.28.31.32 0.0.0.3 192.168.30.200 0.0.0.0 eq 20
+permit tcp 172.28.31.36 0.0.0.3 192.168.30.200 0.0.0.0 eq 20
+permit tcp 172.28.31.40 0.0.0.3 192.168.30.200 0.0.0.0 eq 20
+permit tcp 180.1.2.80 0.0.0.7 192.168.30.200 0.0.0.0 eq 21
+deny ip any any
+
+! Apply the ACL in an outbound direction on interface F0/1 (Interface connected to the servers)
+interface F0/1
+ip access-group SERVER-ACCESS out
+
+! (#8) DMZ Access Control List Configuration --------------------------------------------------------------------------------
+! All traffic from the CorpB LAB should be able to initiate traffic to the DMZ and to the internet
+! The servers in the DM should not be able to initiate traffic to the CorpB LAN (Established keyword may be useful here)
+
+! Create an extended ACL named DMZ-ACL
+ip access-list extended DMZ-ACL
+! Add a description
+remark Allow traffic from CorpB LAN to DMZ and Internet
+! Allow traffic from the CorpB LAN to the DMZ
+permit ip
+! Allow traffic from the CorpB LAN to the Internet
+permit ip
+! Deny traffic from the DMZ to the CorpB LAN
+deny ip
+! Permit all other traffic
+permit ip any any
+
+
+! Zone Based Firewall Configuration (#16) -----------------------------------------------------------------------------------------
+
+! The CorpB router should be configured as a ZPF
+! All traffic from the internet to the CorpB LAN should be denied by default
+! If the traffic is initiated from the CorpB LAN and destined for the internet, the return traffic should be permitted to establish a TCP session and send and recieve data
+! Once the TCP session is completed and torn down, the return traffic should be denied
+

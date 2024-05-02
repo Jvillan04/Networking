@@ -6,7 +6,7 @@ enable secret cisco
 service password-encryption
 
 
-! Defualt Static Route to ISP router (#5)
+! Defualt Static Route to ISP router (#5) -------------------------------------------------------------------------------------------------
 ip route 0.0.0.0 0.0.0.0 180.1.2.129
 
 
@@ -18,7 +18,7 @@ description "link to ISP"
 no shutdown
 
 
-! InterVLAN Routing Configuration (#21)
+! InterVLAN Routing Configuration (#21) -------------------------------------------------------------------------------------------------
 interface F0/0
 no shutdown
 !
@@ -45,7 +45,7 @@ exit
 
 
 
-! DHCP Configuration (#10) Only DHCP for VLANs 21 and 22
+! DHCP Configuration (#10) Only DHCP for VLANs 21 and 22 -------------------------------------------------------------------------------------------------
 
 ! DHCP for VLAN 21
 ! Exclude a range of addresses starting from the routers (.1) to .100 in order for the first address handed out to be .101
@@ -76,7 +76,7 @@ domain-name inetsec-corpA.local
 dns-server 172.28.20.21
 
 
-! PAT Configuration (#12)
+! PAT Configuration (#12) -------------------------------------------------------------------------------------------------
 ! Make a standard ACL and name it CORPA-PAT and go into the ACL configuration mode
 ip access-list standard CORPA-PAT
 ! Add a description
@@ -113,7 +113,7 @@ interface Serial0/0/0
 ip nat outside
 
 
-! Configure Server-Based AAA (#18)
+! Configure Server-Based AAA (#18) -------------------------------------------------------------------------------------------------
 
 ! Create local accounts: user1 with user mode access, user2 with privilege level 15 access
 ! No need to specify the privilege level for user1 as it is the default (1)
@@ -152,9 +152,7 @@ aaa authorization exec default group radius if-authenticated
 ! Configure AAA Accounting to keep track of user exec sessions (start-stop records)
 aaa accounting exec default start-stop group radius
 
-
-
-! SSH Configuration (#9)
+! SSH Configuration (#9) -------------------------------------------------------------------------------------------------
 !SSH
 ip domain-name inetsec-corpA.local
 crypto key generate rsa
@@ -196,7 +194,7 @@ exit
 
 
 
-! NTP (#20)
+! NTP (#20) -------------------------------------------------------------------------------------------------
 ! Configure NTP server (Corp-Server's IP address: 172.28.20.21)
 ntp server 172.28.20.21
 
@@ -219,8 +217,49 @@ ntp update-calendar
 service timestamps log datetime msec localtime show-timezone
 service timestamps debug datetime msec localtime show-timezone
 
-! Syslog (#19)
+! Syslog (#19) -------------------------------------------------------------------------------------------------
 logging host 172.28.20.21
 ! CorpA Router should send it's logs to the Corp-Server when any configuration change has been made (or simply entering or exiting privilege mode)
 logging trap informational
+
+! Primitive Firewall (#15) -------------------------------------------------------------------------------------------------
+! On the CorpA site, all traffic destined for the internet should use a primitive form of firewall
+! 'established': Perform basic stateful inspection by allowing return traffic for established connections
+
+! Create an ACL to restrict internet access to HTTP/HTTPS connectivity to the internet 
+ip access-list extended INTERNET-ACCESS
+permit tcp any any eq 80
+permit tcp any any eq 443
+deny ip any any
+remark Allow HTTP traffic to the internet from the inside network
+
+! Example of ACL with 'established' keyword in NetAcad Chapter 8.3.7
+! Create an ACL to permit return HTTP traffic from requested websites (established connections)  using the `established` keyword   
+ip access-list extended RESPONSE-TRAFFIC
+permit tcp any any established
+deny ip any any
+remark Allow return HTTP traffic from requested websites
+
+! Apply the ACLs to the outside interface
+ip access-group INTERNET-ACCESS out
+ip access-group RESPONSE-TRAFFIC in
+
+! NOTE: For the INTERNET-ACCESS ACL, it was placed in s0/1/0 since that interface is the one that connects to the internet. 
+! and it is not placed in the inside interface in order to not block any traffic that would be useful such as OSPF which would be blocked by the ACL.
+
+
+
+
+
+! This is probably not what is being looked for (*Don't run this on the router*)
+! Enable inspection of TCP, UDP, and ICMP traffic (Name the inspection rule FIREWALL) (Context Based Access Control (CBAC)
+ip inspect name FIREWALL tcp
+ip inspect name FIREWALL udp
+ip inspect name FIREWALL icmp
+
+! Apply the inspection rule to the inside interface (F0/0) in an outbound direction
+interface F0/0
+ip inspect FIREWALL out
+
+
 
