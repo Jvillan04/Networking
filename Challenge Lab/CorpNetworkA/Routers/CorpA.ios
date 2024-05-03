@@ -243,23 +243,3 @@ remark Allow return HTTP traffic from requested websites
 ! Apply the ACLs to the outside interface
 ip access-group INTERNET-ACCESS out
 ip access-group RESPONSE-TRAFFIC in
-
-! NOTE: For the INTERNET-ACCESS ACL, it was placed in s0/1/0 since that interface is the one that connects to the internet. 
-! and it is not placed in the inside interface in order to not block any traffic that would be useful such as OSPF which would be blocked by the ACL.
-
-
-
-
-
-! This is probably not what is being looked for (*Don't run this on the router*)
-! Enable inspection of TCP, UDP, and ICMP traffic (Name the inspection rule FIREWALL) (Context Based Access Control (CBAC)
-ip inspect name FIREWALL tcp
-ip inspect name FIREWALL udp
-ip inspect name FIREWALL icmp
-
-! Apply the inspection rule to the inside interface (F0/0) in an outbound direction
-interface F0/0
-ip inspect FIREWALL out
-
-
-
