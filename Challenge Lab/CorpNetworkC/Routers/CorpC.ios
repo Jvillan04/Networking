@@ -21,7 +21,20 @@ ip route 0.0.0.0 0.0.0.0 180.1.2.162
 
 
 ! (#12) Dynamic NAT and PAT
+! Create a standard ACL to match the traffic that will be Translated
+ip access-list standard CORPC-NAT
+! Permit the LAN to be NATed
+remark Permit the LAN to be NATed and PATed
+permit 172.28.40.0 0.0.0.255
 
+! Configure NAT and PAT to use the IP address on interface S0/1/0
+ip nat inside source list CORPC-NAT interface S0/1/0 overload
+
+! Apply NAT to the inside and outside interfaces
+interface F0/0
+ip nat inside
+interface S0/1/0
+ip nat outside
 
 ! (#15) Primitive Firewall (This ACL should also allow for VPN traffic) ------------------------------------------------------
 ! Create an ACL to deny traffic from the Internet to the LAN (But allow VPN traffic from CorpA)
@@ -41,17 +54,24 @@ permit udp host 180.1.2.162 host 180.1.2.130 eq isakmp
 permit esp host 180.1.2.162 host 180.1.2.130 
 permit ahp host 180.1.2.162 host 180.1.2.130 
 remark Permit traffic initiated from the LAN to the Internet (.80 /29) (Deny traffic Initiated from the Internet to the LAN)
+! 'established': Perform basic stateful inspection by allowing return traffic for established connections
 permit tcp 180.1.2.80 0.0.0.7 any established
 deny ip any any 
 exit 
 interface S0/1/0
 ip access-group INBOUND in
 
-! (#17) Local AAA
+! (#17) Local AAA -------------------------------------------------------------------------------------------------------
 
+! Create local user accounts: User 1: User level 1 (User mode access) Password: cisco, User 2: User level 15 (Privileged mode access) Password: cisco
+! Both users should be able to remotly manage the device
+username user1 secret cisco
+username user2 privilege 15 secret cisco
 
-
-
+! Enable AAA
+aaa new-model
+! Add the authentication method to the default login list, the authentication method will be local
+aaa authentication login default local
 
 ! SSH Configuration (#9) -------------------------------------------------------------------------------------------------
 !SSH
@@ -62,12 +82,12 @@ ip ssh version 2
 
 ! Configure lines without specifying additional passwords (Local Accounts were configured in the AAA section above and will be used for SSH authentication)
 line con 0
- login local
+ login authentication default
  logging synchronous
  ! Log out after 10 minutes of inactivity
  exec-timeout 10 0
 line vty 0 4
- login local
+ login authentication default
  logging synchronous
  transport input ssh
  ! Log out after 10 minutes of inactivity
@@ -82,7 +102,6 @@ remark allow SSH from Corp-Server only via SSH (Port 22)
 permit tcp host 172.28.40.101 any eq 22
 ! Deny all other SSH traffic
 deny tcp any any eq 22
-
 
 ! Apply this to the virtual terminal lines configured above in an inbound direction (Going into the router)
 line vty 0 4

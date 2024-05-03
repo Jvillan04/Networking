@@ -183,9 +183,6 @@ remark allow SSH from Corp-Server only via SSH (Port 22)
 permit tcp host 172.28.20.21 any eq 22
 ! Deny all other SSH traffic
 deny tcp any any eq 22
-! Permit all other traffic to ensure that the ACL does not inadvertently block non-SSH traffic
-permit ip any any
-
 
 ! Apply this to the virtual terminal lines configured above in an inbound direction (Going into the router)
 line vty 0 4
@@ -223,23 +220,28 @@ logging host 172.28.20.21
 logging trap informational
 
 ! Primitive Firewall (#15) -------------------------------------------------------------------------------------------------
-! On the CorpA site, all traffic destined for the internet should use a primitive form of firewall
+! On the CorpA site, all traffic destined for the internet should use a primitive form of firewall (Also make sure to permit traffic for IPsec negotiations)
+!permit <protocol_suite> source wildcard destination wildcard [eq <port>]
+ip access-list extended INBOUND
+remark permit traffic from CorpC LAN to the CorpA Networks
+! Permit the 172.28.40.0 /24 Network to the 172.28.20.0 /24 network
+permit ip 172.28.40.0 0.0.0.255 172.28.20.0 0.0.0.255 
+! Permit the 172.28.40.0 /24 Network to the 172.28.21.0 /24 network
+permit ip 172.28.40.0 0.0.0.255 172.28.21.0 0.0.0.255 
+! Permit the 172.28.40.0 /24 Network to the 172.28.22.0 /24 network
+permit ip 172.28.40.0 0.0.0.255 172.28.22.0 0.0.0.255 
+! Permit the 172.28.40.0 /24 Network to the 172.28.23.0 /24 network
+permit ip 172.28.40.0 0.0.0.255 172.28.23.0 0.0.0.255  
+remark Ensure that the ACL will permit traffic neccessary for IPsec negotiations (ISAKMP, ESP, AH)
+permit icmp host 180.1.2.130 host 180.1.2.162
+permit udp host 180.1.2.130 host 180.1.2.162 eq isakmp
+permit esp host 180.1.2.130 host 180.1.2.162 
+permit ahp host 180.1.2.130 host 180.1.2.162 
+remark Permit traffic initiated from the LAN to the Internet (.80 /29) (Deny traffic Initiated from the Internet to the LAN)
 ! 'established': Perform basic stateful inspection by allowing return traffic for established connections
+permit tcp 180.1.2.80 0.0.0.7 any established
+deny ip any any 
+exit 
+interface S0/0/0
+ip access-group INBOUND in
 
-! Create an ACL to restrict internet access to HTTP/HTTPS connectivity to the internet 
-ip access-list extended INTERNET-ACCESS
-permit tcp any any eq 80
-permit tcp any any eq 443
-deny ip any any
-remark Allow HTTP traffic to the internet from the inside network
-
-! Example of ACL with 'established' keyword in NetAcad Chapter 8.3.7
-! Create an ACL to permit return HTTP traffic from requested websites (established connections)  using the `established` keyword   
-ip access-list extended RESPONSE-TRAFFIC
-permit tcp any any established
-deny ip any any
-remark Allow return HTTP traffic from requested websites
-
-! Apply the ACLs to the outside interface
-ip access-group INTERNET-ACCESS out
-ip access-group RESPONSE-TRAFFIC in
