@@ -13,16 +13,47 @@ no shutdown
 interface F0/0
 ip address 172.28.40.1 255.255.255.0 
 no shutdown
-
+!
 exit
 
-! (#5) Defualt Static Route to ISP router
+! (#5) Defualt Static Route to ISP router ------------------------------------------------------------------------------------
 ip route 0.0.0.0 0.0.0.0 180.1.2.162
+
+
+! (#12) Dynamic NAT and PAT
+
+
+! (#15) Primitive Firewall (This ACL should also allow for VPN traffic) ------------------------------------------------------
+! Create an ACL to deny traffic from the Internet to the LAN (But allow VPN traffic from CorpA)
+!permit <protocol_suite> source wildcard destination wildcard [eq <port>]
+ip access-list extended INBOUND
+remark permit traffic from CorpA Networks to CorpC LAN
+permit ip 172.28.20.0 0.0.0.255 172.28.40.0 0.0.0.255
+! Permit the 172.28.21.0 /24 network
+permit ip 172.28.21.0 0.0.0.255 172.28.40.0 0.0.0.255
+! Permit the 172.28.22.0 /24 network
+permit ip 172.28.22.0 0.0.0.255 172.28.40.0 0.0.0.255
+! Permit the 172.28.23.0 /24 network
+permit ip 172.28.23.0 0.0.0.255 172.28.40.0 0.0.0.255 
+remark Ensure that the ACL will permit traffic neccessary for IPsec negotiations (ISAKMP, ESP, AH)
+permit icmp host 180.1.2.162 host 180.1.2.130
+permit udp host 180.1.2.162 host 180.1.2.130 eq isakmp
+permit esp host 180.1.2.162 host 180.1.2.130 
+permit ahp host 180.1.2.162 host 180.1.2.130 
+remark Permit traffic initiated from the LAN to the Internet (.80 /29) (Deny traffic Initiated from the Internet to the LAN)
+permit tcp 180.1.2.80 0.0.0.7 any established
+deny ip any any 
+exit 
+interface S0/1/0
+ip access-group INBOUND in
+
+! (#17) Local AAA
+
+
 
 
 
 ! SSH Configuration (#9) -------------------------------------------------------------------------------------------------
-username cisco secret cisco
 !SSH
 ip domain-name inetsec-corpC.local
 crypto key generate rsa
@@ -43,7 +74,6 @@ line vty 0 4
  exec-timeout 10 0
 exit
 
-
 ! Construct an access list only allowing Corp-Mgmt (IP: 172.28.30.101/24) to SSH into device
 ! Create an extended named ACL named SSH-Access and go into the ACL configuration mode
 ip access-list extended SSH-Access
@@ -52,38 +82,9 @@ remark allow SSH from Corp-Server only via SSH (Port 22)
 permit tcp host 172.28.40.101 any eq 22
 ! Deny all other SSH traffic
 deny tcp any any eq 22
-! Permit all other traffic to ensure that the ACL does not inadvertently block non-SSH traffic
-permit ip any any
+
 
 ! Apply this to the virtual terminal lines configured above in an inbound direction (Going into the router)
 line vty 0 4
 access-class SSH-Access in
 exit
-
-! (#12) Dynamic NAT and PAT
-
-
-! (#15) Primitive Firewall
-! All traffic from the the internet to the CorpC LAN should be denied by default
-! Create an ACL to restrict internet access to HTTP/HTTPS connectivity to the internet 
-ip access-list extended INTERNET-ACCESS
-permit tcp any any eq 80
-permit tcp any any eq 443
-deny ip any any
-remark Allow HTTP traffic to the internet from the inside network
-
-! Example of ACL with 'established' keyword in NetAcad Chapter 8.3.7
-! ACL to permit return traffic initiated by LAN, but dney traffic if it is initiated from the Internet to the CorpC LAN
-ip access-list extended RESPONSE-TRAFFIC
-permit tcp any any established
-deny ip any any
-remark Allow return HTTP traffic from requested websites
-
-! Apply the ACLs to the outside interface
-ip access-group INTERNET-ACCESS out
-ip access-group RESPONSE-TRAFFIC in
-
-! (#17) Local AAA
-
-
-! 
