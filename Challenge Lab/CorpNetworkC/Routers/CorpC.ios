@@ -109,3 +109,5 @@ access-class SSH-Access in
 exit
 
 ! (#22) IPSec VPN -------------------------------------------------------------------------------------------------------
+
+! Configure an IPSec tunnel to the CorpA Site

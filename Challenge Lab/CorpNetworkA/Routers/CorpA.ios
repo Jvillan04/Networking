@@ -53,9 +53,9 @@ ip dhcp excluded-address 172.28.21.1 172.28.21.100
 ! Make a DHCP pool for VLAN 21 and name it VLAN21-POOL
 ip dhcp pool VLAN21-POOL
 ! Specify the network that the DHCP pool will be handing out addresses for (172.168.21.0 /24)
-network 172.168.21.0 255.255.255.0
+network 172.28.21.0 255.255.255.0
 ! Specify the default gateway for the clients
-default-router 172.168.21.1
+default-router 172.28.21.1
 ! Make a domain name
 domain-name inetsec-corpA.local
 ! Specify the DNS server for the clients (IP adderess of Corp-Server)
@@ -65,11 +65,11 @@ dns-server 172.28.20.21
 ! Exclude a range of addresses starting from the routers (.1) to .100 in order for the first address handed out to be .101
 ip dhcp excluded-address 172.28.22.1 172.28.22.100
 ! Make a DHCP pool for VLAN 21 and name it VLAN21-POOL
-ip dhcp pool VLAN21-POOL
+ip dhcp pool VLAN22-POOL
 ! Specify the network that the DHCP pool will be handing out addresses for (172.168.21.0 /24)
-network 172.168.22.0 255.255.255.0
+network 172.28.22.0 255.255.255.0
 ! Specify the default gateway for the clients
-default-router 172.168.22.1
+default-router 172.28.22.1
 ! Make a domain name
 domain-name inetsec-corpA.local
 ! Specify the DNS server for the clients (IP adderess of Corp-Server)
@@ -141,13 +141,8 @@ aaa authentication login default group radius local
 
 
 ! Enable AAA Authorization for user EXEC sessions
-! 'aaa authorization exec': Configures authorization for starting an EXEC session (interactive command-line access).
-! 'default': Applies this authorization method list as the default for all user EXEC sessions.
-! 'group radius': Specifies the RADIUS server group to be used for authorization.
-! Authorization determines what authenticated users are permitted to do within the session.
-! 'if-authenticated': Allows the session to start with previously authenticated credentials if the RADIUS server is unreachable for authorization.
-! This setup ensures that users who are authenticated but not authorized due to RADIUS server issues can still start a basic session.
-! It is crucial for maintaining access for troubleshooting while ensuring security via RADIUS for normal operations.
+! This command sets up authorization for EXEC sessions. It means that after a user is authenticated,
+! the router checks with the RADIUS server for what the user is authorized to do.
 aaa authorization exec default group radius if-authenticated
 
 ! Configure AAA Accounting to keep track of user exec sessions (start-stop records)
@@ -250,3 +245,4 @@ exit
 
 ! (#22) IPSec VPN -------------------------------------------------------------------------------------------------------
 
+! Configure an IPSec tunnel to the CorpC site
