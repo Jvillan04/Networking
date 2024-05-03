@@ -17,7 +17,7 @@ no shutdown
 exit
 
 ! (#5) Defualt Static Route to ISP router ------------------------------------------------------------------------------------
-ip route 0.0.0.0 0.0.0.0 180.1.2.162
+ip route 0.0.0.0 0.0.0.0 180.1.2.161
 
 
 ! (#12) Dynamic NAT and PAT
@@ -107,3 +107,5 @@ deny tcp any any eq 22
 line vty 0 4
 access-class SSH-Access in
 exit
+
+! (#22) IPSec VPN -------------------------------------------------------------------------------------------------------

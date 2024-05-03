@@ -91,7 +91,8 @@ permit 172.28.22.0 0.0.0.255
 permit 172.28.23.0 0.0.0.255
 ! Deny everything else (Optional as it's implicit)
 deny any
-
+!
+exit
 ! Configue PAT using the outside interface IP of S0/0/0 (180.1.2.130) 
 ip nat inside source list CORPA-PAT interface S0/0/0 overload
 
@@ -111,7 +112,8 @@ ip nat inside
 !
 interface Serial0/0/0
 ip nat outside
-
+!
+exit
 
 ! Configure Server-Based AAA (#18) -------------------------------------------------------------------------------------------------
 
@@ -147,7 +149,6 @@ aaa authentication login default group radius local
 ! This setup ensures that users who are authenticated but not authorized due to RADIUS server issues can still start a basic session.
 ! It is crucial for maintaining access for troubleshooting while ensuring security via RADIUS for normal operations.
 aaa authorization exec default group radius if-authenticated
-
 
 ! Configure AAA Accounting to keep track of user exec sessions (start-stop records)
 aaa accounting exec default start-stop group radius
@@ -244,4 +245,8 @@ deny ip any any
 exit 
 interface S0/0/0
 ip access-group INBOUND in
+!
+exit
+
+! (#22) IPSec VPN -------------------------------------------------------------------------------------------------------
 
