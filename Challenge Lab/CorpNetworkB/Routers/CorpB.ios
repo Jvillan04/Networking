@@ -198,3 +198,59 @@ ip access-group RESPONSE-TRAFFIC in
 ! If the traffic is initiated from the CorpB LAN and destined for the internet, the return traffic should be permitted to establish a TCP session and send and recieve data
 ! Once the TCP session is completed and torn down, the return traffic should be denied
 
+! Create two distinct zones: one for corporate network and one for the public internet (Step 1: Create the zones)
+zone security PRIVATE
+exit
+zone security PUBLIC
+exit
+
+! Create a class-map to identify and inspect HTTP and FTP traffic (Step 2: Identify Traffic)
+
+! use 'match-any' to match either HTTP or FTP traffic and name the class-map HTTPS-FTP 
+class-map type inspect match-any HTTP
+! Match HTTPS traffic
+match protocol http
+exit
+
+! Specify the appriopriate action using a policy-map to inspect HTTPS and FTP traffic (Step 3: Specify Actions)
+
+! Create a policy-map named PRIV-TO-PUB-POLICY
+policy-map type inspect PRIV-TO-PUB-POLICY
+! Asscoiate the class-map HTTPS with the policy-map
+class type inspect HTTP
+! Inspect the HTTPS and FTP traffic (state-based traffic control)
+inspect
+
+! Incase we want to pass all other traffic uncomment line 29 and 30 do this within the policy-map PRIV-TO-PUB-POLICY config mode
+! class class-default
+!  pass
+
+exit
+exit
+
+! Create and Identify the appropriate zone-pair where the Corporate network is the source and the Internet is the destination (Step 4: Identify a Zone-Pair and Match to a Policy)
+
+! Create a zone-pair named PRIVATE-TO-PUBLIC with the source zone as PRIVATE and the destination zone as PUBLIC (Zones created in Step 1)
+zone-pair security PRIVATE-TO-PUBLIC source PRIVATE destination PUBLIC
+! Associate the policy-map PRIV-TO-PUB-POLICYY with the zone-pair
+service-policy type inspect PRIV-TO-PUB-POLICY
+exit
+
+!Assign the zones to the appropriate interfaces (Step 5: Assign Zones to Interfaces)
+! Assign the PUBLIC zone to the interface connected to the Internet (e.g. s0/1/0)
+interface S0/0/1
+zone-member security PUBLIC
+! Assign the PRIVATE zone to the interfaces connected to the Corporate LAN (e.g. F0/0, S0/0/0 and S0/1/0)
+interface F0/0
+zone-member security PRIVATE
+interface S0/0/0
+zone-member security PRIVATE
+interface S0/1/0
+zone-member security PRIVATE
+exit
+
+! At the end of the policy map, there is an implicit class-default class-map that will drop all traffic that is not matched by the HTTPS-FTP class-map. 
+
+
+
+
