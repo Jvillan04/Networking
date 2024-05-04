@@ -76,6 +76,9 @@ aaa new-model
 ! Add the authentication method to the default login list, the authentication method will be local
 aaa authentication login default local
 
+! Enable AAA authorization: Use the default authorization list and the authorization method will be local
+aaa authorization exec default local
+
 ! SSH Configuration (#9) -------------------------------------------------------------------------------------------------
 !SSH
 ip domain-name inetsec-corpC.local

@@ -119,7 +119,6 @@ exit
 ! Configure Server-Based AAA (#18) -------------------------------------------------------------------------------------------------
 
 ! Create local accounts: user1 with user mode access, user2 with privilege level 15 access
-! No need to specify the privilege level for user1 as it is the default (1)
 username user1 privilege 1 secret cisco
 username user2 privilege 15 secret cisco
 
@@ -143,7 +142,7 @@ aaa authentication login default group radius local
 
 ! Enable AAA Authorization for user EXEC sessions
 ! Use local database for authorization since RADIUS does not have privilege level information
-aaa authorization exec default group local
+aaa authorization exec default local
 
 ! Configure AAA Accounting to keep track of user exec sessions (start-stop records)
 aaa accounting exec default start-stop group radius

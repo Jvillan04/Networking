@@ -82,8 +82,7 @@ aaa authentication login default group radius local
 
 ! Enable AAA Authorization for user EXEC sessions
 ! Use local database for authorization since RADIUS does not have privilege level information
-aaa authorization exec default group local
-
+aaa authorization exec default local
 
 ! Configure AAA Accounting to keep track of user exec sessions (start-stop records)
 aaa accounting exec default start-stop group radius
