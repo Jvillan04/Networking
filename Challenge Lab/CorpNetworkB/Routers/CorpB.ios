@@ -71,8 +71,6 @@ remark allow SSH from Corp-Server only via SSH (Port 22)
 permit tcp host 172.28.30.101 any eq 22
 ! Deny all other SSH traffic
 deny tcp any any eq 22
-! Permit all other traffic to ensure that the ACL does not inadvertently block non-SSH traffic
-permit ip any any
 
 ! Apply this to the virtual terminal lines configured above in an inbound direction (Going into the router)
 line vty 0 4
@@ -244,6 +242,7 @@ zone-member security PRIVATE
 interface S0/1/0
 zone-member security PRIVATE
 exit
+! This configuration will allow traffic initiated from the Corporate LAN to the Internet to be inspected and return traffic to be allowed for established connections. All other traffic into the Corporate LAN will be denied by default.
 ! Note: There is an implicit 'drop' action for any traffic that does not match specified class-maps in the policy-map
 
 
