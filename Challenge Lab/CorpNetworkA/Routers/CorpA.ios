@@ -43,7 +43,8 @@ interface F0/0.23
  description "NetMgmt"
 exit 
 
-
+! Specify the DNS server for the router (IP adderess of Corp-Server)
+ip name server 172.28.20.21
 
 ! DHCP Configuration (#10) Only DHCP for VLANs 21 and 22 -------------------------------------------------------------------------------------------------
 
