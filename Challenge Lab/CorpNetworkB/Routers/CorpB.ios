@@ -204,35 +204,31 @@ exit
 zone security PUBLIC
 exit
 
-! Create a class-map to identify and inspect HTTP and FTP traffic (Step 2: Identify Traffic)
-
-! use 'match-any' to match either HTTP or FTP traffic and name the class-map HTTPS-FTP 
-class-map type inspect match-any HTTP
+! Create a class-map to identify and inspect TCP traffic (Step 2: Identify Traffic)
+! Match Any = Match any one of the specified protocols
+class-map type inspect match-any TCP-TRAFFIC
 ! Match HTTPS traffic
-match protocol http
+match protocol tcp
 exit
 
-! Specify the appriopriate action using a policy-map to inspect HTTPS and FTP traffic (Step 3: Specify Actions)
-
+! Specify the appriopriate action using a policy-map to inspect TCP traffic (Step 3: Specify Actions)
 ! Create a policy-map named PRIV-TO-PUB-POLICY
 policy-map type inspect PRIV-TO-PUB-POLICY
-! Asscoiate the class-map HTTPS with the policy-map
-class type inspect HTTP
-! Inspect the HTTPS and FTP traffic (state-based traffic control)
+! Asscoiate the class-map TCP-TRAFFIC with the policy-map
+class type inspect TCP-TRAFFIC
+! Statefully inspect TCP sessions, allowing return traffic for established connections
 inspect
 
-! Incase we want to pass all other traffic uncomment line 29 and 30 do this within the policy-map PRIV-TO-PUB-POLICY config mode
+! Incase we want to pass all other traffic that does not match any classes uncomment this. Do this within the policy-map PRIV-TO-PUB-POLICY config mode
 ! class class-default
 !  pass
-
 exit
 exit
 
 ! Create and Identify the appropriate zone-pair where the Corporate network is the source and the Internet is the destination (Step 4: Identify a Zone-Pair and Match to a Policy)
-
 ! Create a zone-pair named PRIVATE-TO-PUBLIC with the source zone as PRIVATE and the destination zone as PUBLIC (Zones created in Step 1)
 zone-pair security PRIVATE-TO-PUBLIC source PRIVATE destination PUBLIC
-! Associate the policy-map PRIV-TO-PUB-POLICYY with the zone-pair
+! Associate the policy-map PRIV-TO-PUB-POLICY with the zone-pair
 service-policy type inspect PRIV-TO-PUB-POLICY
 exit
 
@@ -248,8 +244,7 @@ zone-member security PRIVATE
 interface S0/1/0
 zone-member security PRIVATE
 exit
-
-! At the end of the policy map, there is an implicit class-default class-map that will drop all traffic that is not matched by the HTTPS-FTP class-map. 
+! Note: There is an implicit 'drop' action for any traffic that does not match specified class-maps in the policy-map
 
 
 
