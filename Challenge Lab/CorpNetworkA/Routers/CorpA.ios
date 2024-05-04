@@ -142,9 +142,8 @@ aaa authentication login default group radius local
 
 
 ! Enable AAA Authorization for user EXEC sessions
-! This command sets up authorization for EXEC sessions. It means that after a user is authenticated,
-! the router checks with the RADIUS server for what the user is authorized to do.
-aaa authorization exec default group radius local
+! Use local database for authorization since RADIUS does not have privilege level information
+aaa authorization exec default group local
 
 ! Configure AAA Accounting to keep track of user exec sessions (start-stop records)
 aaa accounting exec default start-stop group radius
@@ -229,16 +228,17 @@ permit ip 172.28.40.0 0.0.0.255 172.28.21.0 0.0.0.255
 permit ip 172.28.40.0 0.0.0.255 172.28.22.0 0.0.0.255 
 ! Permit the 172.28.40.0 /24 Network to the 172.28.23.0 /24 network
 permit ip 172.28.40.0 0.0.0.255 172.28.23.0 0.0.0.255  
-remark Ensure that the ACL will permit traffic neccessary for IPsec negotiations (ISAKMP, ESP, AH)
-permit icmp host 180.1.2.130 host 180.1.2.162
-permit udp host 180.1.2.130 host 180.1.2.162 eq isakmp
-permit esp host 180.1.2.130 host 180.1.2.162 
-permit ahp host 180.1.2.130 host 180.1.2.162
-! Permit traffic from 180.1.2.161 (ISP Router) to the LAN
+remark Allow All Traffic from the CorpC Router (.162) to the CorpA Router (.130) (Including ISAKMP, ESP, and AHP for VPN)
+permit ip host 180.1.2.162 host 180.1.2.130
+!permit icmp host 180.1.2.162 host 180.1.2.130
+!permit udp host 180.1.2.162 host 180.1.2.130 eq isakmp
+!permit esp host 180.1.2.162 host 180.1.2.130 
+!permit ahp host 180.1.2.162 host 180.1.2.130
+! Permit traffic from 180.1.2.129 (ISP Router) to the LAN
 permit ip host 180.1.2.129 host 180.1.2.130
 remark Permit traffic initiated from the LAN to the Internet (.80 /29) (Deny traffic Initiated from the Internet to the LAN)
 ! 'established': Perform basic stateful inspection by allowing return traffic for established connections
-permit tcp any any established
+permit tcp 180.1.2.80 0.0.0.7 any established
 deny ip any any 
 exit 
 interface S0/0/0

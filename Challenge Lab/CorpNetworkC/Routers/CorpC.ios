@@ -48,11 +48,12 @@ permit ip 172.28.21.0 0.0.0.255 172.28.40.0 0.0.0.255
 permit ip 172.28.22.0 0.0.0.255 172.28.40.0 0.0.0.255
 ! Permit the 172.28.23.0 /24 network
 permit ip 172.28.23.0 0.0.0.255 172.28.40.0 0.0.0.255 
-remark Ensure that the ACL will permit traffic neccessary for IPsec negotiations (ISAKMP, ESP, AH)
-permit icmp host 180.1.2.162 host 180.1.2.130
-permit udp host 180.1.2.162 host 180.1.2.130 eq isakmp
-permit esp host 180.1.2.162 host 180.1.2.130 
-permit ahp host 180.1.2.162 host 180.1.2.130 
+remark Allow All Traffic from the CorpA Router (.130) to the CorpC Router (.162) (Including ISAKMP, ESP, and AHP for VPN)
+permit ip host 180.1.2.130 host 180.1.2.162
+!permit icmp host 180.1.2.130 host 180.1.2.162
+!permit udp host 180.1.2.130 host 180.1.2.162 eq isakmp
+!permit esp host 180.1.2.130 host 180.1.2.162 
+!permit ahp host 180.1.2.130 host 180.1.2.162 
 ! Permit traffic from 180.1.2.161 (ISP Router) to the LAN
 permit ip host 180.1.2.161 host 180.1.2.162
 remark Permit traffic initiated from the LAN to the Internet (.80 /29) (Deny traffic Initiated from the Internet to the LAN)
