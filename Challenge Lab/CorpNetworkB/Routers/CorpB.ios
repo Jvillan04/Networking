@@ -100,7 +100,7 @@ area 0 authentication message-digest
 exit
 
 ! (#12) Port Address Translation (PAT) should be configured to use a pool of 10 addresses on the CorpB router: ---------------------------------------------
-! Public Network Address:180.1.2.144 /28   Usable Host Range: 180.1.2.145 - 180.1.2.158 (Broadcast Address: 180.1.2.159)
+! Public Network Address:180.1.2.144 /28   Usable Host Range: 180.1.2.145 - 180.1.2.158 (Broadcast Address: 180.1.2.159) .145 and .146 are used by the ISP router and the CorpB router respectively
 !Configure NAT and PAT pool of 10 addresses starting from 180.1.2.147 to 180.1.2.156 (inclusive)
 ip nat pool CORPB-POOL 180.1.2.147 180.1.2.156 netmask 255.255.255.240
 ! Make a standard ACL and name it CORPB-NAT-ACL
