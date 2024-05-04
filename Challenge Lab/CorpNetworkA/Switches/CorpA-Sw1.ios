@@ -82,6 +82,7 @@ aaa authentication login default group radius local
 
 ! Enable AAA Authorization for user EXEC sessions
 ! Use local database for authorization since RADIUS does not have privilege level information
+!Even though authentication is handled by RADIUS, defining users locally allows you to set specific privilege levels that are applied during the authorization phase.
 aaa authorization exec default local
 
 
