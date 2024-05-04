@@ -4,6 +4,8 @@ hostname CorpA-SW
 enable secret cisco
 service password-encryption
 
+!Set the Default Gateway to <Router IP>
+ip default-gateway 172.28.23.1
 
 ! VTP (#23) (Assign this Switch as the VTP Server)
 vtp mode server
@@ -154,26 +156,8 @@ line vty 0 4
 access-class SSH-Access in
 exit
 
-! NTP (#20)
-! Configure NTP server (Corp-Server's IP address: 172.28.20.21)
-ntp server 172.28.20.21
-
-! Enable NTP authentication
-ntp authenticate
-
-! Configure NTP authentication key (Key ID: 10, Key: cisco)
-ntp authentication-key 10 md5 cisco
-
-! Specify trusted NTP server with the authentication key
-ntp trusted-key 10
-
-! Re-associate the NTP server with authentication key
-ntp server 172.28.20.21 key 10
-
-! Update system calendar with NTP time
-ntp update-calendar
 
 ! Enable timestamps on log messages with milliseconds and local time zone (ex: 2024-04-20 15:00:00.000 EST)
-service timestamps log datetime msec localtime show-timezone
-service timestamps debug datetime msec localtime show-timezone
+service timestamps log datetime msec
+service timestamps debug datetime msec 
 

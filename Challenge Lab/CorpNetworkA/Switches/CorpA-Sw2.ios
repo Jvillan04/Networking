@@ -4,6 +4,7 @@ hostname CorpA-SW2
 enable secret cisco
 service password-encryption
 
+!Set the Default Gateway to <Router IP>
 ip default-gateway 172.28.23.1
 
 ! NOTE: 2960 Switches only support 802.1Q encapsulation, so no need to specify it.
