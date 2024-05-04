@@ -53,6 +53,8 @@ permit icmp host 180.1.2.162 host 180.1.2.130
 permit udp host 180.1.2.162 host 180.1.2.130 eq isakmp
 permit esp host 180.1.2.162 host 180.1.2.130 
 permit ahp host 180.1.2.162 host 180.1.2.130 
+! Permit traffic from 180.1.2.161 (ISP Router) to the LAN
+permit ip host 180.1.2.161 host 180.1.2.162
 remark Permit traffic initiated from the LAN to the Internet (.80 /29) (Deny traffic Initiated from the Internet to the LAN)
 ! 'established': Perform basic stateful inspection by allowing return traffic for established connections
 permit tcp 180.1.2.80 0.0.0.7 any established
@@ -65,7 +67,7 @@ ip access-group INBOUND in
 
 ! Create local user accounts: User 1: User level 1 (User mode access) Password: cisco, User 2: User level 15 (Privileged mode access) Password: cisco
 ! Both users should be able to remotly manage the device
-username user1 secret cisco
+username user1 privilege 1 secret cisco
 username user2 privilege 15 secret cisco
 
 ! Enable AAA
@@ -110,4 +112,63 @@ exit
 
 ! (#22) IPSec VPN -------------------------------------------------------------------------------------------------------
 
+! Use the mnemonic HAGLE to remember the five SAs (Security Associations) to configure:
+!    Hash
+!    Authentication
+!    Group
+!    Lifetime
+!    Encryption
+
 ! Configure an IPSec tunnel to the CorpA Site
+
+! Enable IKE/ISAKMP on the Router
+crypto isakmp enable
+
+! Create an IKE Policy (IKE Phase 1), set prioirity to 1 (Note: Peers do not require matching priority numbers.)
+crypto isakmp policy 1
+! Hash: Set the hash to SHA
+hash sha
+! Authentication: Set the authentication method to pre-shared key
+authentication pre-share
+! Group: Set the Diffie-Hellman group to 5
+group 5
+! Lifetime: Set the lifetime to 86400 seconds (24 hours)
+lifetime 86400
+! Encryption: Set the encryption algorithm to AES 256
+encryption aes 256
+!
+exit
+
+! Pre-Shared Key Configuration (Key : cisco) (Peer: CorpA - 180.1.2.130)
+crypto isakmp key cisco address 180.1.2.130
+
+! Define Interesting Traffic (Traffic that will be encrypted) (CorpC LAN: 172.28.40.0 /24 network) (This traffic will trigger the start of IKE Phase 1)
+! This traffic is routed through the VPN tunnel without undergoing NAT
+! <access-list-number> permit ip source/lan wildcard destination/lan wildcard (i.e. premit traffic from local LAN to remote LAN)
+access-list 100 permit ip 172.28.40.0 0.0.0.255 172.28.20.0 0.0.0.255
+access-list 100 permit ip 172.28.40.0 0.0.0.255 172.28.21.0 0.0.0.255
+access-list 100 permit ip 172.28.40.0 0.0.0.255 172.28.22.0 0.0.0.255
+access-list 100 permit ip 172.28.40.0 0.0.0.255 172.28.23.0 0.0.0.255
+
+! Configure IPSec Transform Set (IKE Phase 2) (Name: CorpA-CorpC-Transform) (Hash: SHA, Encryption: AES 256, Note: Can be configured in any order) 
+crypto ipsec transform-set CorpA-CorpC-Transform esp-aes 256 esp-sha-hmac
+
+
+! Configure the Crypto Map and go into crypto map config mode (Name: CorpA-CorpC-Map) (ipsec-isakmp: Use IKE to establish IPSec)(This is where above configurations are tied together)
+crypto map CorpA-CorpC-Map 10 ipsec-isakmp
+! Bind the ACL and Transform Set to the Crypto Map
+match address 100
+set transform-set CorpA-CorpC-Transform
+! Set the Peer IP Address (CorpA: 180.1.2.130)
+set peer 180.1.2.130
+! Set the Security-Association Lifetime to 86400 seconds (24 hours)
+set security-association lifetime seconds 86400
+! Set the PFS (Perfect Forward Secrecy) Group to 5
+set pfs group5
+! 
+exit
+
+! Apply the Crypto Map to the Outside Interface
+interface S0/1/0
+crypto map CorpA-CorpC-Map
+

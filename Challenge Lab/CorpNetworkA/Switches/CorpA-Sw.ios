@@ -45,6 +45,24 @@ switchport trunk native vlan 23
 switchport trunk allowed vlan 20,21,22,23
 no shutdown
 
+interface F0/11
+switchport mode trunk
+! Make sure to set the native VLAN to 23 (the management VLAN)
+switchport trunk native vlan 23
+! Make sure to allow VLANs 20, 21, 22, and 23 on the trunk (and only those VLANs)
+switchport trunk allowed vlan 20,21,22,23
+no shutdown
+
+interface F0/12
+switchport mode trunk
+! Make sure to set the native VLAN to 23 (the management VLAN)
+switchport trunk native vlan 23
+! Make sure to allow VLANs 20, 21, 22, and 23 on the trunk (and only those VLANs)
+switchport trunk allowed vlan 20,21,22,23
+no shutdown
+
+
+
 ! Configure port security on F0/20
 interface F0/20
 switchport mode access              
@@ -87,13 +105,6 @@ aaa authentication login default group radius local
 
 
 ! Enable AAA Authorization for user EXEC sessions
-! 'aaa authorization exec': Configures authorization for starting an EXEC session (interactive command-line access).
-! 'default': Applies this authorization method list as the default for all user EXEC sessions.
-! 'group radius': Specifies the RADIUS server group to be used for authorization.
-! Authorization determines what authenticated users are permitted to do within the session.
-! 'if-authenticated': Allows the session to start with previously authenticated credentials if the RADIUS server is unreachable for authorization.
-! This setup ensures that users who are authenticated but not authorized due to RADIUS server issues can still start a basic session.
-! It is crucial for maintaining access for troubleshooting while ensuring security via RADIUS for normal operations.
 aaa authorization exec default group radius if-authenticated
 
 
@@ -136,8 +147,6 @@ remark allow SSH from Corp-Server only via SSH (Port 22)
 permit tcp host 172.28.20.21 any eq 22
 ! Deny all other SSH traffic
 deny tcp any any eq 22
-! Permit all other traffic to ensure that the ACL does not inadvertently block non-SSH traffic
-permit ip any any
 
 
 ! Apply this to the virtual terminal lines configured above in an inbound direction (Going into the router)

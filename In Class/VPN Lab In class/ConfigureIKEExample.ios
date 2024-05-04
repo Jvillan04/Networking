@@ -16,7 +16,7 @@ encryption 3des
 ! Set the IKE SA (Security Ascsciocation) lifetime (defualt is 86400 seconds)
 lifetime 86400
 
-! Create Preshared key to use with Perr IP Address
+! Create Preshared key to use with Peer IP Address
 crypto isakmp key T3@CH address 180.1.2.162
 
 ! Show the IKE policy
@@ -43,7 +43,7 @@ show access-list
 
 ! Define Crypto Map Parameters
 
-! Create a Cryptomap with a name, number and tupe of key exchange
+! Create a Cryptomap with a name, number and tuye of key exchange
 crypto map NortheastMap 20 ipsec-isakmp
 
 match address 120

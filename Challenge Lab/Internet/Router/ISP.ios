@@ -1,59 +1,61 @@
 en
 conf t
-hostname CorpC-Sw
+hostname ISP
 enable secret cisco
 service password-encryption
 
-! Make VLAN 23 the Management interface
-vlan 23
-name NetMgmt
+! Interface Configuration
 
-interface vlan 23
-ip address 172.28.40.10 255.255.255.0 
+interface F0/0
+ip address 180.1.2.81 255.255.255.248
+no shutdown
+
+interface S0/0/0
+ip address 180.1.2.129 255.255.255.240
+clock rate 2000000 
+no shutdown
+
+interface S0/0/1
+ip address 180.1.2.145 255.255.255.240
+clock rate 2000000 
+no shutdown
+
+interface S0/1/0
+ip address 180.1.2.161 255.255.255.240
+clock rate 2000000 
 no shutdown
 
 
-ip default-gateway 172.28.40.1
-
-! (#17) Local AAA -------------------------------------------------------------------------------------------------------
-
-! Create local user accounts: User 1: User level 1 (User mode access) Password: cisco, User 2: User level 15 (Privileged mode access) Password: cisco
-! Both users should be able to remotly manage the device
-username user1 privilege 1 secret cisco
-username user2 privilege 15 secret cisco
-
-! Enable AAA
-aaa new-model
-! Add the authentication method to the default login list, the authentication method will be local
-aaa authentication login default local
 
 ! SSH Configuration (#9) -------------------------------------------------------------------------------------------------
+username cisco secret cisco
 !SSH
-ip domain-name inetsec-corpC.local
+ip domain-name inetsec-ISP.local
 crypto key generate rsa
 2048
 ip ssh version 2
 
 ! Configure lines without specifying additional passwords (Local Accounts were configured in the AAA section above and will be used for SSH authentication)
 line con 0
- login authentication default
+ login local
  logging synchronous
  ! Log out after 10 minutes of inactivity
  exec-timeout 10 0
 line vty 0 4
- login authentication default
+ login local
  logging synchronous
  transport input ssh
  ! Log out after 10 minutes of inactivity
  exec-timeout 10 0
 exit
 
+
 ! Construct an access list only allowing Corp-Mgmt (IP: 172.28.30.101/24) to SSH into device
 ! Create an extended named ACL named SSH-Access and go into the ACL configuration mode
 ip access-list extended SSH-Access
 remark allow SSH from Corp-Server only via SSH (Port 22)
 ! Allows SSH from one PC to any of CorpB's IP addresses (Allow SSH to Device itself)
-permit tcp host 172.28.40.101 any eq 22
+permit tcp host 180.1.2.85 any eq 22
 ! Deny all other SSH traffic
 deny tcp any any eq 22
 
@@ -61,5 +63,3 @@ deny tcp any any eq 22
 line vty 0 4
 access-class SSH-Access in
 exit
-
-

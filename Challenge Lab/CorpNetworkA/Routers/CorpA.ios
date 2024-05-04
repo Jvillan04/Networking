@@ -44,7 +44,7 @@ interface F0/0.23
 exit 
 
 ! Specify the DNS server for the router (IP adderess of Corp-Server)
-ip name server 172.28.20.21
+ip name-server 172.28.20.21
 
 ! DHCP Configuration (#10) Only DHCP for VLANs 21 and 22 -------------------------------------------------------------------------------------------------
 
@@ -61,7 +61,7 @@ default-router 172.28.21.1
 domain-name inetsec-corpA.local
 ! Specify the DNS server for the clients (IP adderess of Corp-Server)
 dns-server 172.28.20.21
-
+exit
 ! DHCP for VLAN 22
 ! Exclude a range of addresses starting from the routers (.1) to .100 in order for the first address handed out to be .101
 ip dhcp excluded-address 172.28.22.1 172.28.22.100
@@ -75,7 +75,7 @@ default-router 172.28.22.1
 domain-name inetsec-corpA.local
 ! Specify the DNS server for the clients (IP adderess of Corp-Server)
 dns-server 172.28.20.21
-
+exit
 
 ! PAT Configuration (#12) -------------------------------------------------------------------------------------------------
 ! Make a standard ACL and name it CORPA-PAT and go into the ACL configuration mode
@@ -120,8 +120,8 @@ exit
 
 ! Create local accounts: user1 with user mode access, user2 with privilege level 15 access
 ! No need to specify the privilege level for user1 as it is the default (1)
-username user1 secret cisco
-username user2 secret cisco privilege 15
+username user1 privilege 1 secret cisco
+username user2 privilege 15 secret cisco
 
 ! RADIUS Configuration
 ! Enable AAA
@@ -135,7 +135,7 @@ address ipv4 172.28.20.21
 
 ! Specify a key of CMPT420
 key CMPT420
-
+exit
 ! Configure AAA Authentication
 ! Default login authentication uses RADIUS; falls back to local if RADIUS server is unavailable
 aaa authentication login default group radius local
@@ -144,7 +144,7 @@ aaa authentication login default group radius local
 ! Enable AAA Authorization for user EXEC sessions
 ! This command sets up authorization for EXEC sessions. It means that after a user is authenticated,
 ! the router checks with the RADIUS server for what the user is authorized to do.
-aaa authorization exec default group radius if-authenticated
+aaa authorization exec default group radius local
 
 ! Configure AAA Accounting to keep track of user exec sessions (start-stop records)
 aaa accounting exec default start-stop group radius
@@ -207,9 +207,9 @@ ntp server 172.28.20.21 key 10
 ! Update system calendar with NTP time
 ntp update-calendar
 
-! Enable timestamps on log messages with milliseconds and local time zone (ex: 2024-04-20 15:00:00.000 EST)
-service timestamps log datetime msec localtime show-timezone
-service timestamps debug datetime msec localtime show-timezone
+! Enable timestamps on log messages with milliseconds precision 
+service timestamps log datetime msec 
+service timestamps debug datetime msec 
 
 ! Syslog (#19) -------------------------------------------------------------------------------------------------
 logging host 172.28.20.21
@@ -233,10 +233,12 @@ remark Ensure that the ACL will permit traffic neccessary for IPsec negotiations
 permit icmp host 180.1.2.130 host 180.1.2.162
 permit udp host 180.1.2.130 host 180.1.2.162 eq isakmp
 permit esp host 180.1.2.130 host 180.1.2.162 
-permit ahp host 180.1.2.130 host 180.1.2.162 
+permit ahp host 180.1.2.130 host 180.1.2.162
+! Permit traffic from 180.1.2.161 (ISP Router) to the LAN
+permit ip host 180.1.2.129 host 180.1.2.130
 remark Permit traffic initiated from the LAN to the Internet (.80 /29) (Deny traffic Initiated from the Internet to the LAN)
 ! 'established': Perform basic stateful inspection by allowing return traffic for established connections
-permit tcp 180.1.2.80 0.0.0.7 any established
+permit tcp any any established
 deny ip any any 
 exit 
 interface S0/0/0
@@ -246,4 +248,63 @@ exit
 
 ! (#22) IPSec VPN -------------------------------------------------------------------------------------------------------
 
+! Use the mnemonic HAGLE to remember the five SAs (Security Associations) to configure:
+!    Hash
+!    Authentication
+!    Group
+!    Lifetime
+!    Encryption
+
 ! Configure an IPSec tunnel to the CorpC site
+
+! Enable IKE/ISAKMP on the Router
+crypto isakmp enable
+
+! Create an IKE Policy (IKE Phase 1), set prioirity to 1 (Note: Peers do not require matching priority numbers.)
+crypto isakmp policy 1
+! Hash: Set the hash to SHA
+hash sha
+! Authentication: Set the authentication method to pre-shared key
+authentication pre-share
+! Group: Set the Diffie-Hellman group to 5
+group 5
+! Lifetime: Set the lifetime to 86400 seconds (24 hours)
+lifetime 86400
+! Encryption: Set the encryption algorithm to AES 256
+encryption aes 256
+!
+exit
+
+! Pre-Shared Key Configuration (Key : cisco) (Peer: CorpC - 180.1.2.162)
+crypto isakmp key cisco address 180.1.2.162
+
+! Define Interesting Traffic (Traffic that will be encrypted) (CorpC LAN: 172.28.40.0 /24 network) (This traffic will trigger the start of IKE Phase 1)
+! This traffic is routed through the VPN tunnel without undergoing NAT
+! <access-list-number> permit ip source/lan wildcard destination/lan wildcard (i.e. premit traffic from local LAN to remote LAN)
+access-list 100 permit ip 172.28.20.0 0.0.0.255 172.28.40.0 0.0.0.255
+access-list 100 permit ip 172.28.21.0 0.0.0.255 172.28.40.0 0.0.0.255
+access-list 100 permit ip 172.28.22.0 0.0.0.255 172.28.40.0 0.0.0.255
+access-list 100 permit ip 172.28.23.0 0.0.0.255 172.28.40.0 0.0.0.255
+
+! Configure IPSec Transform Set (IKE Phase 2) (Name: CorpA-CorpC-Transform) (Hash: SHA, Encryption: AES 256, Note: Can be configured in any order) 
+crypto ipsec transform-set CorpA-CorpC-Transform esp-aes 256 esp-sha-hmac
+
+
+! Configure the Crypto Map and go into crypto map config mode (Name: CorpA-CorpC-Map) (ipsec-isakmp: Use IKE to establish IPSec)(This is where above configurations are tied together)
+crypto map CorpA-CorpC-Map 10 ipsec-isakmp
+! Bind the ACL and Transform Set to the Crypto Map
+match address 100
+set transform-set CorpA-CorpC-Transform
+! Set the Peer IP Address (CorpC: 180.1.2.162)
+set peer 180.1.2.162
+! Set the Security-Association Lifetime to 86400 seconds (24 hours)
+set security-association lifetime seconds 86400
+! Set the PFS (Perfect Forward Secrecy) Group to 5
+set pfs group5
+! 
+exit
+
+! Apply the Crypto Map to the Outside Interface
+interface S0/0/0
+crypto map CorpA-CorpC-Map
+

@@ -2,7 +2,7 @@ en
 conf t
 hostname CorpA-SW1
 enable secret cisco
-
+service password-encryption
 
 
 ! NOTE: 2960 Switches only support 802.1Q encapsulation, so no need to specify it.
@@ -82,14 +82,7 @@ aaa authentication login default group radius local
 
 
 ! Enable AAA Authorization for user EXEC sessions
-! 'aaa authorization exec': Configures authorization for starting an EXEC session (interactive command-line access).
-! 'default': Applies this authorization method list as the default for all user EXEC sessions.
-! 'group radius': Specifies the RADIUS server group to be used for authorization.
-! Authorization determines what authenticated users are permitted to do within the session.
-! 'if-authenticated': Allows the session to start with previously authenticated credentials if the RADIUS server is unreachable for authorization.
-! This setup ensures that users who are authenticated but not authorized due to RADIUS server issues can still start a basic session.
-! It is crucial for maintaining access for troubleshooting while ensuring security via RADIUS for normal operations.
-aaa authorization exec default group radius if-authenticated
+aaa authorization exec default group radius local
 
 
 ! Configure AAA Accounting to keep track of user exec sessions (start-stop records)
@@ -139,25 +132,6 @@ permit ip any any
 line vty 0 4
 access-class SSH-Access in
 exit
-
-! NTP (#20)
-! Configure NTP server (Corp-Server's IP address: 172.28.20.21)
-ntp server 172.28.20.21
-
-! Enable NTP authentication
-ntp authenticate
-
-! Configure NTP authentication key (Key ID: 10, Key: cisco)
-ntp authentication-key 10 md5 cisco
-
-! Specify trusted NTP server with the authentication key
-ntp trusted-key 10
-
-! Re-associate the NTP server with authentication key
-ntp server 172.28.20.21 key 10
-
-! Update system calendar with NTP time
-ntp update-calendar
 
 ! Enable timestamps on log messages with milliseconds and local time zone (ex: 2024-04-20 15:00:00.000 EST)
 service timestamps log datetime msec localtime show-timezone
