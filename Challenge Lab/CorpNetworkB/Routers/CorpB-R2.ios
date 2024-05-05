@@ -64,9 +64,7 @@ remark allow SSH from Corp-Server only via SSH (Port 22)
 ! Allows SSH from one PC to any of CorpB's IP addresses (Allow SSH to Device itself)
 permit tcp host 172.28.30.101 any eq 22
 ! Deny all other SSH traffic
-deny tcp any any eq 22
-! Permit all other traffic to ensure that the ACL does not inadvertently block non-SSH traffic
-permit ip any any
+deny tcp any any
 
 ! Apply this to the virtual terminal lines configured above in an inbound direction (Going into the router)
 line vty 0 4

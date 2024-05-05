@@ -148,7 +148,7 @@ remark allow SSH from Corp-Server only via SSH (Port 22)
 ! Allows SSH from one PC to any of CorpA's IP addresses (Allow SSH to Device itself)
 permit tcp host 172.28.20.21 any eq 22
 ! Deny all other SSH traffic
-deny tcp any any eq 22
+deny tcp any any
 
 
 ! Apply this to the virtual terminal lines configured above in an inbound direction (Going into the router)
@@ -161,3 +161,16 @@ exit
 service timestamps log datetime msec
 service timestamps debug datetime msec 
 
+! Root Guard (Add this to all ports that should not be the root port for a VLAN) (Ports connected to other switches)
+int range f0/11-12
+spanning-tree guard root
+
+
+
+! ACL to deny all traffic to VLAN1
+ip access-list extended DENY-VLAN1
+deny ip any any
+exit
+int vlan 1
+ip access-group DENY-VLAN1 in
+exit

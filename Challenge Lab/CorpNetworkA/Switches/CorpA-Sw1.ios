@@ -146,7 +146,7 @@ vlan 999
 name Restricted
 exit
 
-int range F0/
+int range F0/2-10
 switchport mode access
 switchport access vlan 999
 int range F0/13-20

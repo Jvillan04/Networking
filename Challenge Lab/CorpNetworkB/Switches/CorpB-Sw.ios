@@ -56,9 +56,8 @@ remark allow SSH from Corp-Server only via SSH (Port 22)
 ! Allows SSH from one PC to any of CorpB's IP addresses (Allow SSH to Device itself)
 permit tcp host 172.28.30.101 any eq 22
 ! Deny all other SSH traffic
-deny tcp any any eq 22
-! Permit all other traffic to ensure that the ACL does not inadvertently block non-SSH traffic
-permit ip any any
+deny tcp any any
+
 
 ! Apply this to the virtual terminal lines configured above in an inbound direction (Going into the router)
 line vty 0 4
@@ -66,7 +65,30 @@ access-class SSH-Access in
 exit
 
 ! Put unused interfaces in a Restricted VLAN
-
-
 vlan 999
 name Restricted
+
+! Apply to switch so router and PC can SSH to and ping the switch
+interface FastEthernet0/1 
+switchport mode access
+switchport access vlan 23
+
+
+int range fa0/11-12
+switchport mode access
+switchport access vlan 23
+
+! Put Unused ports in VLAN 999 (Restricted VLAN)
+vlan 999
+name Restricted
+exit
+
+int range F0/2-10
+switchport mode access
+switchport access vlan 999
+int range F0/13-24
+switchport mode access
+switchport access vlan 999
+int range G0/1-2
+switchport mode access
+switchport access vlan 999

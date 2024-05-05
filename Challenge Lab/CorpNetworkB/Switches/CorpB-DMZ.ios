@@ -64,3 +64,29 @@ permit ip any any
 line vty 0 4
 access-class SSH-Access in
 exit
+
+
+! Apply to switch so router and Servers can SSH to and ping the switch
+interface FastEthernet0/1 
+switchport mode access
+switchport access vlan 23
+
+
+int range fa0/21-22
+switchport mode access
+switchport access vlan 23
+
+! Put Unused ports in VLAN 999 (Restricted VLAN)
+vlan 999
+name Restricted
+exit
+
+int range F0/2-20
+switchport mode access
+switchport access vlan 999
+int range F0/23-24
+switchport mode access
+switchport access vlan 999
+int range G0/1-2
+switchport mode access
+switchport access vlan 999
