@@ -70,7 +70,7 @@ remark allow SSH from Corp-Server only via SSH (Port 22)
 ! Allows SSH from one PC to any of CorpB's IP addresses (Allow SSH to Device itself)
 permit tcp host 172.28.30.101 any eq 22
 ! Deny all other SSH traffic
-deny tcp any any eq 22
+deny ip any any
 
 ! Apply this to the virtual terminal lines configured above in an inbound direction (Going into the router)
 line vty 0 4
@@ -85,18 +85,14 @@ ip route 0.0.0.0 0.0.0.0 180.1.2.145
 
 ! OSPF Configuration (Dynamic Routing #6) ---------------------------------------------------------------------------------
 router ospf 1
-! Set Loopback Address as Static router-ID <Loopback IP>
-router-id 172.28.99.100
-! Advertise a default route into OSPF
-default-information originate
-! Advertise the following networks into OSPF area 0 <NetAddr> <Wildcard Mask>
-network 172.28.30.0 0.0.0.255 area 0
-network 192.168.30.0 0.0.0.255 area 0
-network 172.28.31.32 0.0.0.3 area 0
-network 172.28.31.40 0.0.0.3 area 0
-! Apply OSPF Authentication to OSPF area 0
-area 0 authentication message-digest
-!
+ router-id 172.28.99.100
+ log-adjacency-changes
+ network 172.28.30.0 0.0.0.255 area 0
+ network 192.168.30.0 0.0.0.255 area 0
+ network 172.28.31.32 0.0.0.3 area 0
+ network 172.28.31.40 0.0.0.3 area 0
+ area 0 authentication message-digest
+ default-information originate
 exit
 
 ! (#12) Port Address Translation (PAT) should be configured to use a pool of 10 addresses on the CorpB router: ---------------------------------------------
@@ -115,6 +111,7 @@ permit 172.28.31.36 0.0.0.3
 permit 172.28.31.40 0.0.0.3
 ! Deny everything else 
 deny any
+exit
 ! Apply NAT using the defined pool and enable PAT (overload)
 ip nat inside source list CORPB-NAT-ACL pool CORPB-POOL overload
 ! PAT is used to allow multiple private ip addresses to be translated to a single public ip address
@@ -142,7 +139,7 @@ ip nat inside source static 192.168.30.100 180.1.2.157
 
 ! (#14) FTP Server Static NAT Configuration --------------------------------------------------------------------------------
 ! Static NAT <InsideLocal> <OutsideLocal> map FTP server IP to public IP of 180.1.2.158
-ip nat inside source static 192.168.30.100 180.1.2.158
+ip nat inside source static 192.168.30.200 180.1.2.158
 ! All traffic destined for this server via FTP should be permitted from either CorpB's LAN or the Internet (FTP uses port 21 and 20)
 
 
@@ -218,6 +215,7 @@ class type inspect TCP-TRAFFIC
 inspect
 
 ! Incase we want to pass all other traffic that does not match any classes uncomment this. Do this within the policy-map PRIV-TO-PUB-POLICY config mode
+! This ensures all other traffic not explicitly allowed is dropped
 ! class class-default
 !  pass
 exit
@@ -233,6 +231,9 @@ exit
 !Assign the zones to the appropriate interfaces (Step 5: Assign Zones to Interfaces)
 ! Assign the PUBLIC zone to the interface connected to the Internet (e.g. s0/1/0)
 interface S0/0/1
+zone-member security PUBLIC
+! This is the DMZ (Servers)
+interface F0/1
 zone-member security PUBLIC
 ! Assign the PRIVATE zone to the interfaces connected to the Corporate LAN (e.g. F0/0, S0/0/0 and S0/1/0)
 interface F0/0

@@ -1,6 +1,6 @@
 en
 conf t
-hostname CorpB
+hostname CorpB-R1
 enable secret cisco
 service password-encryption
 

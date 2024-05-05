@@ -65,4 +65,8 @@ line vty 0 4
 access-class SSH-Access in
 exit
 
-! Maybe put unused interface in a BlackHole VLAN
+! Put unused interfaces in a Restricted VLAN
+
+
+vlan 999
+name Restricted

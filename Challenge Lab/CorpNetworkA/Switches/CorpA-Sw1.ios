@@ -6,7 +6,8 @@ service password-encryption
 
 !Set the Default Gateway to <Router IP>
 ip default-gateway 172.28.23.1
-
+! DNS Server config
+ip name-server 172.28.20.21
 ! NOTE: 2960 Switches only support 802.1Q encapsulation, so no need to specify it.
 
 
@@ -136,6 +137,24 @@ line vty 0 4
 access-class SSH-Access in
 exit
 
-! Enable timestamps on log messages with milliseconds and local time zone (ex: 2024-04-20 15:00:00.000 EST)
-service timestamps log datetime msec localtime show-timezone
-service timestamps debug datetime msec localtime show-timezone
+! Enable timestamps on log messages with milliseconds precision
+service timestamps log datetime msec 
+service timestamps debug datetime msec 
+
+! Put Unused ports in VLAN 999 (Restricted VLAN)
+vlan 999
+name Restricted
+exit
+
+int range F0/
+switchport mode access
+switchport access vlan 999
+int range F0/13-20
+switchport mode access
+switchport access vlan 999
+int range F0/21-24
+switchport mode access
+switchport access vlan 999
+int range G0/1-2
+switchport mode access
+switchport access vlan 999

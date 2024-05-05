@@ -78,20 +78,18 @@ dns-server 172.28.20.21
 exit
 
 ! PAT Configuration (#12) -------------------------------------------------------------------------------------------------
-! Make a standard ACL and name it CORPA-PAT and go into the ACL configuration mode
-ip access-list standard CORPA-PAT
-! Add a description
-remark this is used for interface PAT
-! Permit the 172.28.20.0 /24 network
-permit 172.28.20.0 0.0.0.255
-! Permit the 172.28.21.0 /24 network
-permit 172.28.21.0 0.0.0.255
-! Permit the 172.28.22.0 /24 network
-permit 172.28.22.0 0.0.0.255
-! Permit the 172.28.23.0 /24 network
-permit 172.28.23.0 0.0.0.255
-! Deny everything else (Optional as it's implicit)
-deny any
+! Create an extended ACL named CORPA-PAT
+ip access-list extended CORPA-PAT
+remark "Exlude VPN traffic from PAT"
+ deny ip 172.28.20.0 0.0.0.255 172.28.40.0 0.0.0.255
+ deny ip 172.28.21.0 0.0.0.255 172.28.40.0 0.0.0.255
+ deny ip 172.28.22.0 0.0.0.255 172.28.40.0 0.0.0.255
+ deny ip 172.28.23.0 0.0.0.255 172.28.40.0 0.0.0.255
+remark "PAT for all other traffic" 
+ permit ip 172.28.20.0 0.0.0.255 any
+ permit ip 172.28.21.0 0.0.0.255 any
+ permit ip 172.28.22.0 0.0.0.255 any
+ permit ip 172.28.23.0 0.0.0.255 any
 !
 exit
 ! Configue PAT using the outside interface IP of S0/0/0 (180.1.2.130) 
@@ -143,6 +141,8 @@ aaa authentication login default group radius local
 ! Enable AAA Authorization for user EXEC sessions
 ! Use local database for authorization since RADIUS does not have privilege level information
 aaa authorization exec default local
+aaa authorization commands 1 default local
+aaa authorization commands 15 default local
 
 ! Configure AAA Accounting to keep track of user exec sessions (start-stop records)
 aaa accounting exec default start-stop group radius
@@ -176,8 +176,8 @@ ip access-list extended SSH-Access
 remark allow SSH from Corp-Server only via SSH (Port 22)
 ! Allows SSH from Corp-Mgmt PC to any of Corp's IP addresses (Allow SSH to Device itself)
 permit tcp host 172.28.20.21 any eq 22
-! Deny all other SSH traffic
-deny tcp any any eq 22
+! Deny all other traffic
+deny ip any any
 
 ! Apply this to the virtual terminal lines configured above in an inbound direction (Going into the router)
 line vty 0 4
@@ -235,6 +235,7 @@ permit ip host 180.1.2.162 host 180.1.2.130
 !permit ahp host 180.1.2.162 host 180.1.2.130
 ! Permit traffic from 180.1.2.129 (ISP Router) to the LAN
 permit ip host 180.1.2.129 host 180.1.2.130
+permit ip host 180.1.2.146 host 180.1.2.130
 remark Permit traffic initiated from the LAN to the Internet (.80 /29) (Deny traffic Initiated from the Internet to the LAN)
 ! 'established': Perform basic stateful inspection by allowing return traffic for established connections
 permit tcp 180.1.2.80 0.0.0.7 any established
@@ -261,16 +262,12 @@ crypto isakmp enable
 
 ! Create an IKE Policy (IKE Phase 1), set prioirity to 20 (Note: Peers do not require matching priority numbers.)
 crypto isakmp policy 20
-! Hash: Set the hash to SHA
-hash sha
+! Encryption: Set the encryption algorithm to 3DES
+encryption 3des
 ! Authentication: Set the authentication method to pre-shared key
 authentication pre-share
 ! Group: Set the Diffie-Hellman group to 2
 group 2
-! Lifetime: Set the lifetime to 86400 seconds (24 hours)
-lifetime 86400
-! Encryption: Set the encryption algorithm to 3DES
-encryption 3des
 !
 exit
 
@@ -289,16 +286,15 @@ access-list 100 permit ip 172.28.23.0 0.0.0.255 172.28.40.0 0.0.0.255
 crypto ipsec transform-set CorpA-CorpC-Transform esp-3des
 
 
-! Configure the Crypto Map and go into crypto map config mode (Name: CorpA-CorpC-Map) (ipsec-isakmp: Use IKE to establish IPSec)(This is where above configurations are tied together)
+! Configure the Crypto Map with ID of 20 and go into crypto map config mode (Name: CorpA-CorpC-Map) (ipsec-isakmp: Use IKE to establish IPSec)(This is where above configurations are tied together)
 crypto map CorpA-CorpC-Map 20 ipsec-isakmp
 description CorpA to CorpC VPN
-! Bind the ACL and Transform Set to the Crypto Map
-match address 100
-set transform-set CorpA-CorpC-Transform
 ! Set the Peer IP Address (CorpC: 180.1.2.162)
 set peer 180.1.2.162
-! Set the PFS (Perfect Forward Secrecy) Group to 2
-set pfs group2
+! Set the transform set to the one created above
+set transform-set CorpA-CorpC-Transform
+! Bind the ACLto the Crypto Map
+match address 100
 ! 
 exit
 
