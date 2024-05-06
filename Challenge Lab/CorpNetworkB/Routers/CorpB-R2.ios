@@ -60,7 +60,6 @@ exit
 ! Construct an access list only allowing Corp-Mgmt (IP: 172.28.30.101/24) to SSH into device
 ! Create an extended named ACL named SSH-Access and go into the ACL configuration mode
 ip access-list extended SSH-Access
-remark allow SSH from Corp-Server only via SSH (Port 22)
 ! Allows SSH from one PC to any of CorpB's IP addresses (Allow SSH to Device itself)
 permit tcp host 172.28.30.101 any eq 22
 ! Deny all other SSH traffic

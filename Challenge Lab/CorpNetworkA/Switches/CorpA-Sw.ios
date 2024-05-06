@@ -81,6 +81,14 @@ no shutdown
 exit
 
 
+! Add PortFast and BPDU Guard to the access ports (Ports connecting to end devices) 
+int range f0/20
+spanning-tree portfast
+spanning-tree bpduguard enable
+!
+exit
+
+
 ! Configure Server-Based AAA (#18)
 
 ! Create local accounts: user1 with user mode access, user2 with privilege level 15 access
@@ -159,7 +167,8 @@ exit
 
 ! Enable timestamps on log messages with milliseconds and local time zone (ex: 2024-04-20 15:00:00.000 EST)
 service timestamps log datetime msec
-service timestamps debug datetime msec 
+service timestamps debug datetime msec
+
 
 ! Root Guard (Add this to all ports that should not be the root port for a VLAN) (Ports connected to other switches)
 int range f0/11-12

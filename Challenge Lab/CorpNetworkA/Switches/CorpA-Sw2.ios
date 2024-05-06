@@ -56,6 +56,13 @@ switchport trunk native vlan 23
 switchport trunk allowed vlan 20,21,22,23
 exit
 
+! Add PortFast and BPDU Guard to the access ports (Ports connecting to end devices) 
+int range f0/11-12
+spanning-tree portfast
+spanning-tree bpduguard enable
+!
+exit
+
 ! Configure Server-Based AAA (#18)
 
 ! Create local accounts: user1 with user mode access, user2 with privilege level 15 access
@@ -135,5 +142,5 @@ exit
 
 
 ! Enable timestamps on log messages with milliseconds and local time zone (ex: 2024-04-20 15:00:00.000 EST)
-service timestamps log datetime msec 
-service timestamps debug datetime msec 
+service timestamps log datetime msec
+service timestamps debug datetime msec

@@ -59,6 +59,17 @@ switchport trunk allowed vlan 20,21,22,23
 no shutdown
 exit
 
+
+! Add PortFast and BPDU Guard to the access ports (Ports connecting to end devices) 
+int range f0/11-12
+spanning-tree portfast
+spanning-tree bpduguard enable
+!
+exit
+! Enable bpdu guard by default on all portfast ports
+spanning-tree portfast bpduguard default
+
+
 ! Configure Server-Based AAA (#18)
 
 ! Create local accounts: user1 with user mode access, user2 with privilege level 15 access
@@ -138,8 +149,9 @@ access-class SSH-Access in
 exit
 
 ! Enable timestamps on log messages with milliseconds precision
-service timestamps log datetime msec 
-service timestamps debug datetime msec 
+service timestamps log datetime msec
+service timestamps debug datetime msec
+
 
 ! Put Unused ports in VLAN 999 (Restricted VLAN)
 vlan 999
