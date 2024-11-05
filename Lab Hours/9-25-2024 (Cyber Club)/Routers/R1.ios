@@ -1,0 +1,26 @@
+
+
+! Router 1:
+enable 
+Configure t
+hostname Router1
+! Set up interfaces 
+int f0/1 
+ip address 192.168.12.1 255.255.255.252 
+no shutdown 
+interface e0/0 
+ip address 192.168.13.1 255.255.255.252 
+no shutdown 
+! Set up ospf
+router ospf 1 
+network 192.168.12.0 0.0.0.3 area 0 
+network 192.168.13.0 0.0.0.3 area 0
+
+255.255.255.240
+
+line con 0
+ password cisco
+ logging synchronous
+ login 
+
+0.0.0.15
