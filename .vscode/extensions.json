@@ -1,0 +1,7 @@
+// VS Code extensions go in this file to be recommended to users when they clone the repo
+// The extension downloaded is syntax highlighting for cisco ios
+{
+  "recommendations": [
+    "jamiewoodio.cisco"
+  ]
+}

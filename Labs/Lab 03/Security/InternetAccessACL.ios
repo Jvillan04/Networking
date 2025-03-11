@@ -26,3 +26,4 @@ ip access-group RESPONSE-TRAFFIC in
 
 ! NOTE: For the INTERNET-ACCESS ACL, it was placed in s0/1/0 since that interface is the one that connects to the internet. 
 ! and it is not placed in the inside interface in order to not block any traffic that would be useful such as OSPF which would be blocked by the ACL.
+

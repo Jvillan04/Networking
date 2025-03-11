@@ -426,7 +426,7 @@
 
 	"DHCP":{
 		"scope": "cisco",
-		"prefix": ["DHCP"],
+		"prefix": ["DHCP", "dhcp"],
 		"body": [
 			"! DHCP for VLAN 22",
 			"! Exclude a range of addresses <ip address> <ip address>",
@@ -446,7 +446,7 @@
 	},	
 	"Etherchannel":{
 		"scope": "cisco",
-		"prefix": ["Etherchannel"],
+		"prefix": ["Etherchannel", "etherchannel"],
 		"body": [
 			"! Etherchannel Configuration",
 			"! Create a port-channel interface",
@@ -466,6 +466,54 @@
 			"no shut",
 			"exit"
 		]
-	}
+	},
+	"clockrate 2000k":{
+		"scope": "cisco",
+		"prefix": ["clock rate 2000k", "2000k"],
+		"body": [
+			"! Set the clock rate for the serial interface to 2000k",
+			"clock rate 2000000"
+		]
+	},
+	"clockrate 1000k":{
+		"scope": "cisco",
+		"prefix": ["clock rate 1000k", "1000k"],
+		"body": [
+			"! Set the clock rate for the serial interface to 1000k",
+			"clock rate 1000000"
+		]
+	},
+	"Apply ACL inbound on interface" :{
+		"scope": "cisco",
+		"prefix": ["apply acl inbound", "applyacl", "applyacl inbound", "inbound"],
+		"body": [
+			"! Apply ACL inbound",
+			"ip access-group $1 in"
+		]
+	},
+	"Apply ACL inbound on virtual interface" :{
+		"scope": "cisco",
+		"prefix": ["apply acl inbound vty", "applyacl in vty", "applyacl inbound vty", "inbound vty"],
+		"body": [
+			"! Apply ACL inbound in vty line",
+			"ip access-class $1 in"
+		]
+	},
+	"Apply ACL outbound on interface" :{
+		"scope": "cisco",
+		"prefix": ["apply acl outbound", "applyacl out", "applyacl outbound", "outbound"],
+		"body": [
+			"! Apply ACL oubound",
+			"ip access-group $1 in"
+		]
+	},
+	"Apply ACL outbound on virtual interface" :{
+		"scope": "cisco",
+		"prefix": ["apply acl outbound vty", "applyacl out vty", "applyacl outbound vty", "outbound vty"],
+		"body": [
+			"! Apply ACL outbound",
+			"ip access-class $1 in"
+		]
+	},
 	
 }
