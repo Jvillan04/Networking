@@ -515,5 +515,24 @@
 			"ip access-class $1 in"
 		]
 	},
+	"NTP" :{
+		"scope": "cisco",
+		"prefix": ["ntp", "ntp server"],
+		"body": [
+			"! NTP Configuration",
+			"! Configure NTP server with specified IP Address",
+			"ntp server ${1:NTP_SERVER_IP}",
+			"! Enable NTP authentication",
+			"ntp authenticate",
+			"! Configure NTP authentication key",
+			"ntp authentication-key ${2:KEY_ID} md5 cisco",
+			"! Specify trusted NTP server",
+			"ntp trusted ${3:TRUSTED_KEY_ID}",
+			"! Configure NTP server with authentication key (With ID of <key ID>)",
+			"ntp server ${4:TRUSTED_SERVER_IP_ADD} key ${5:KEY_ID}",
+			"! Update system calendar with NTP time",
+			"ntp update-calendar"
+		]
+	}
 	
 }
