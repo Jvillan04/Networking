@@ -1,6 +1,6 @@
 en
 conf t
-hostname SWITCH-00
+hostname SWITCH-01
 
 int vlan 700
 
