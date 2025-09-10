@@ -18,3 +18,4 @@ switchport mode trunk
 
 ! Save the config
 do wr me
+

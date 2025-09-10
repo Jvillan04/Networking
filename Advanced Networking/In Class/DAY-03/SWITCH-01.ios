@@ -24,3 +24,9 @@ switchport access vlan 700
 
 ! Save the config
 do we me
+
+! NOTE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+A logical port-channel interface is automatically created by the channel-group command if it doesn't already exist. You can also manually create it with interface port-channel <number>. 
+Code
+
+    switch(config)# interface port-channel 1

@@ -448,23 +448,8 @@
 		"scope": "cisco",
 		"prefix": ["Etherchannel", "etherchannel"],
 		"body": [
-			"! Etherchannel Configuration",
-			"! Create a port-channel interface",
-			"int port-channel $1",
-			"! Set the port to trunk mode (on other models make sure to add `encapsulation dot1q`) needs to be 802.1q",
-			"switchport mode trunk",
-			"! Enable the port-channel interface",
-			"no shut",
-			"exit",
-			"! Add the physical interfaces to the port-channel",
-			"int range $2",
-			"!Set interface mode to trunk (on other models make sure to add `encapsulation dot1q`) needs to be 802.1q",
-			"switchport mode trunk",
-			"! Channel-group id and mode",
-			"channel-group $3 mode $4",
-			"! Enable the physical interfaces",
-			"no shut",
-			"exit"
+			"! Etherchannel Configuration (Add interface to etherchannel group)",
+			"channel-group ${1:CHANNEL_GROUP_#} mode on"
 		]
 	},
 	"clockrate 2000k":{
