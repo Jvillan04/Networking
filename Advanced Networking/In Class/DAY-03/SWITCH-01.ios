@@ -1,0 +1,26 @@
+en
+conf t
+hostname SWITCH-00
+
+int vlan 700
+
+int g0/2
+switchport mode trunk
+
+! Etherchannel
+int f0/20
+switchport mode trunk
+! Add to channel group 1
+channel-group 1 mode on
+
+int f0/23
+switchport mode trunk
+! Add to channel group 1
+channel-group 1 mode on
+
+int f0/10
+switchport mode access
+switchport access vlan 700
+
+! Save the config
+do we me

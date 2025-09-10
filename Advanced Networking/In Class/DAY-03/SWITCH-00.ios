@@ -1,0 +1,20 @@
+en
+conf t
+hostname SWITCH-00
+
+! Make VLAN 700
+int vlan 700
+
+int f0/5
+switchport mode access
+switchport access vlan 700
+
+int g0/1
+switchport mode access
+switchport access vlan 700
+
+int g0/2
+switchport mode trunk
+
+! Save the config
+do wr me
