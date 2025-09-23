@@ -428,19 +428,19 @@
 		"scope": "cisco",
 		"prefix": ["DHCP", "dhcp"],
 		"body": [
-			"! DHCP for VLAN 22",
-			"! Exclude a range of addresses <ip address> <ip address>",
-			"ip dhcp excluded-address $1 $2",
-			"! Make a DHCP pool for <...> and name it <DCHP Pool Name>",
-			"ip dhcp pool $3",
-			"! Specify the network that the DHCP pool will be handing out addresses for (<NetAdd> /)",
-			"network $4 $5",
+			"! Exclude a range of addresses from the LAN to reservce them for statically assigned devices (Ex: DNS Servers) <Starting Address> <Ending Address> (Inclusive)",
+			"Ex: Exclude the address range (.129-.130) so the first IP assigned is .131 (Done in global config mode)",
+			"ip dhcp excluded-address ${1:Starting Address} ${2:Ending Address}",
+			"! Make a DHCP pool for <whatever part of the network> and name it (This gets you into DHCP config mode)",
+			"ip dhcp pool ${3:DHCP Pool Name}",
+			"! Specify the network that the DHCP pool will be handing out addresses for (<NetAdd> </Subnet Mask>)",
+			"network ${4:Network Address} ${5:Subnet Mask}",
 			"! Specify the default gateway for the clients",
-			"default-router $6",
+			"default-router ${6:Router IP}",
 			"! Make a domain name",
-			"domain-name $7",
-			"! Specify the DNS server for the clients (IP adderess of Corp-Server)",
-			"dns-server $8:"
+			"domain-name ${7:whatever.com}",
+			"! Specify the DNS server for the clients if you have one to ping by hostname instad of IP address)",
+			"dns-server ${8:DNS Server IP}",
 
 		]
 	},	
@@ -518,6 +518,16 @@
 			"! Update system calendar with NTP time",
 			"ntp update-calendar"
 		]
+	},
+
+	"static route": {
+		"scope": "cisco",
+		"prefix": ["static route", "static"],
+		"body": [
+			"! Static Route to <Network Address> <Subnet Mask> <Next Hop IP>",
+			"ip route ${1:Dest_Network Address} ${2:Dest_Subnet Mask} ${3:Next Hop IP}"
+		],
+		"description": "Static Route"
 	}
 	
 }

@@ -30,3 +30,23 @@ A logical port-channel interface is automatically created by the channel-group c
 Code
 
     switch(config)# interface port-channel 1
+
+
+Example DHCP Config from Jvillan04/Networking/Labs/Lab 01/Routers/PoughkeepsieRouter.ios
+
+! DHCP for VLAN 1 on Austin
+! Exclude this address range (.129-.130) so the first IP assigned is .131 for PCA1 (Done in global config mode)
+ip dhcp excluded-address 192.168.90.129 192.168.90.130
+! Make a DHCP Pool for Austin and Name it AUSTIN-LAN-DHCP-POOL (Also goes to DHCP Pool Config mode)
+ip dhcp pool AUSTIN-LAN-DHCP-POOL
+! All commands after this are done in DHCP Pool Config Mode for the AUSTIN-LAN-DHCP-POOL
+! Specify the network address of the network that this address range is part of (.128 /28) in the DHCP Pool
+network 192.168.90.128 255.255.255.240
+! Specify the default Gateway IP addresses being assigned will use  (.129)
+default-router 192.168.90.129
+! Make a domain name
+domain-name inetlab.com
+! Set the DNS Server IP
+dns-server 192.168.90.101
+exit
+
