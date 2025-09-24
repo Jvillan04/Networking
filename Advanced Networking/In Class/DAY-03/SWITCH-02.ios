@@ -18,3 +18,7 @@ switchport access vlan 700
 
 ! Save the config
 do wr me
+
+255.255.255.128
+
+255.255.255.224

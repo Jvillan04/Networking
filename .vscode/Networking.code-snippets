@@ -62,9 +62,9 @@
 
 	"More Network Advertisements": {
 		"scope": "cisco",
-		"prefix": ["network"],
+		"prefix": ["network", "nw", "ntwk"],
 		"body": [
-			"network $1 $2 area 0"
+			"network ${1:Network Address} ${2:Wildcard Mask} area 0"
 		],
 		"description": "Advertise more networks into OSPF"
 	},
@@ -124,7 +124,7 @@
 
 	"SVI Configuration": {
 		"scope": "cisco",
-		"prefix": ["interface vlan", "vlan", "svi", "!SVI", "int vlan"],
+		"prefix": ["interface vlan", "vlan svi", "svi", "!SVI", "int vlan"],
 		"body": [
 			"int vlan $1",
 			"ip add $2 $3",
@@ -398,7 +398,7 @@
 		"prefix": ["defualt static route", "defsr", "defstatic"],
 		"body": [
 			"!Defualt Static Route to <Next Hop IP>",
-			"ip route 0.0.0.0 0.0.0.0 $1"
+			"ip route 0.0.0.0 0.0.0.0 ${1:Next Hop IP}"
 		],
 		"description": "Defualt Static Route"
 	},
@@ -418,7 +418,7 @@
 		"prefix": ["ospf md5", "ospfmd5", "ospfauth", "md5"],
 		"body": [
 			"!OSPF Authentication",
-			"ip ospf message-digest-key 1 md5 cisco"
+			"ip ospf message-digest-key 1 md5 ${1: password}"
 		],
 
 
@@ -528,6 +528,27 @@
 			"ip route ${1:Dest_Network Address} ${2:Dest_Subnet Mask} ${3:Next Hop IP}"
 		],
 		"description": "Static Route"
+	},
+
+	"Switchport mode access":{
+		"scope": "cisco",
+		"prefix": ["mode access", "modeacc", "access", "sw acc"],
+		"body": [
+			"! Set switchport mode to access VLAN",
+			"switchport mode access",
+			"switchport access vlan ${1:VLAN_ID}"
+		],
+		"description": "Set switchport mode to access VLAN"
+	},
+
+	"Switchport mode trunk":{
+		"scope": "cisco",
+		"prefix": ["mode trunk", "modetrunk", "trunk", "sw trunk"],
+		"body": [
+			"! Set switchport mode to trunk (Allow multiple VLANs to pass through)",
+			"switchport mode trunk",
+		],
+		"description": "Set switchport mode to trunk"
 	}
 	
 }

@@ -1,0 +1,37 @@
+en
+conf t
+hostname SWITCH-01
+
+! Change spanning tree mode to Rapid PVST
+spanning-tree mode rapid-pvst
+
+! Put all horizontal links on porthcanel 5
+interface range fa0/10 - 11
+! Set switchport mode to trunk (Allow multiple VLANs to pass through)
+switchport mode trunk
+! Etherchannel Configuration (Add interface to etherchannel group)
+channel-group 5 mode on
+
+int f0/5
+! Set switchport mode to trunk (Allow multiple VLANs to pass through)
+switchport mode trunk
+! Etherchannel Configuration (Add interface to etherchannel group)
+channel-group 5 mode on
+! Make links to MLS1 a trunk
+interface range g0/1 - 2
+switchport mode trunk
+exit
+
+! Add VLAN 1000 (PC2 and PC1)
+vlan 1000
+no shut
+
+! Add VLAN 500 (So Broadasts work in vlan 500)
+vlan 500
+no shut
+
+! Add int 0/1 to VLAN 1000
+int f0/1
+switchport mode access
+switchport access vlan 1000
+
