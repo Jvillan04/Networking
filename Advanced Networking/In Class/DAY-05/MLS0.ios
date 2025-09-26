@@ -7,26 +7,42 @@ spanning-tree mode rapid-pvst
 
 ! Put all horizonatl links on port channel 5
 interface range gig1/1/3 - 4
-switchport mode trunk
-! Etherchannel Configuration (Add interface to etherchannel group)
+! Etherchannel Configuration (Add interfaces to etherchannel group)
 channel-group 5 mode on
 ! Make links to Switch0 portchannel 2
 interface range g1/1/1 - 2
-switchport mode trunk
-! Etherchannel Configuration (Add interface to etherchannel group)
+! Etherchannel Configuration (Add interfaces to etherchannel group)
 channel-group 2 mode on
 
+! Ensure Po5/Po2 exist and are trunks
+interface port-channel 5
+! Switchport command is needed to use this as a layer 2 port
+switchport
+switchport mode trunk
+!
+interface port-channel 2
+! Switchport command is needed to use this as a layer 2 port
+switchport
+switchport mode trunk
 
+! VLAN Configs (Add all VLANs to all switches so that VLAN broadcasts work even if a PC on a different VLAN is on a different switch)
 exit
 ! Add VLAN 1000 (PC2 and PC1)
 vlan 1000
-no shut
-
 ! Add VLAN 500 (So Broadasts work in vlan 500)
 vlan 500
-no shut
-
 ! Add int 0/1 to VLAN 1000
 int g1/0/1
 switchport mode access
 switchport access vlan 1000
+exit
+
+! This is the clockwise switch so make it root for VLAN 500 with 5th lowest priority (16384)
+!!!## Make Clockwise switch (MLS0) root for VLAN 500 (5th lowest = 16384)
+conf t
+spanning-tree vlan 500 priority 16384
+
+
+! Save Config
+ end
+ wr me

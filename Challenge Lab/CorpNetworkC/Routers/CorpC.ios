@@ -177,3 +177,30 @@ interface S0/1/0
 crypto map CorpC-CorpA-Map
 
 
+! VPN to CorpD
+
+! Define IKE Policy
+crypto isakmp policy 10
+ encr 3des
+ authentication pre-share
+ group 5
+
+! Set the Pre-Shared Key
+crypto isakmp key cisco address 180.1.2.178
+
+! Create IPSec Transform Set
+crypto ipsec transform-set CorpC-CorpD-Transform esp-3des esp-sha-hmac
+
+! Define Access List for Interesting Traffic
+ip access-list extended VPN-TRAFFIC
+permit ip 172.28.40.0 255.255.255.0 192.168.1.0 255.255.255.0
+
+! Configure Crypto Map
+crypto map CorpC-CorpD-Map 10 ipsec-isakmp
+ set peer 180.1.2.178
+ set transform-set CorpC-CorpD-Transform
+ match address VPN-TRAFFIC
+
+! Apply Crypto Map to the Interface
+interface Serial0/1/0
+crypto map CorpC-CorpD-Map

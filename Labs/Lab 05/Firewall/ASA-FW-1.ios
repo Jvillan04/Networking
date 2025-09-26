@@ -41,7 +41,7 @@ security-level 100
 ! DHCP--------------------------------------------------------------------------------
 
 ! DHCP (These devices have DHCP)
- Enable DHCP daemon with 'dhcpd'
+! Enable DHCP daemon with 'dhcpd'
 
 ! Set a range of 32 addresses on the inside interface
 dhcpd address 192.168.21.101-192.168.21.102 inside
@@ -115,7 +115,9 @@ access-group INSIDE-ACL in interface INSIDE
 
 
 ! This enables the ADSM (Web GUI) on for the inside interface (Not required, I just wanted to try it)
-ASA-FW-1(config)# http server enable 
-ASA-FW-1(config)# http 192.168.21.0 255.255.255.0 inside
+http server enable 
+http 192.168.21.0 255.255.255.0 inside
 
 
+access-list OUTSIDE-ACL extended permit ip host 180.1.2.85 192.168.1.0 255.255.255.0
+access-group OUTSIDE-ACL in interface outside

@@ -1,0 +1,17 @@
+en
+conf t
+hostname ROUTER-00
+
+! Connection to SWITCH-00 on VLAN 500 (Default Gateway for PCs in VLAN 500)
+int g0/0/0
+ ip address 10.0.1.129 255.255.255.128
+ no shut
+! Connection to MLS1 on VLAN 1000 (Default Gateway for PCs in VLAN 1000)
+int g0/0/1
+ ip address 10.0.2.65 255.255.255.224
+ no shut
+
+
+! Save Config
+ end
+ wr me

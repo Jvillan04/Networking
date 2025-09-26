@@ -7,24 +7,35 @@ spanning-tree mode rapid-pvst
 
 ! Put all horizonatl links on port channel 5
 interface range gig1/1/3 - 4
+channel-group 5 mode on
+! Now that we have our interfaces asa port channel, configure it as a trunk
+interface port-channel 5
+! Switchport command is needed to use this as a layer 2 port
+switchport
 switchport mode trunk
-! Etherchannel Configuration (Add interface to etherchannel group)
-channel-group 5 mode 
-! Make links to Switch1 a trunk
+! Make the individual links between Switch1 and MLS1 trunks (don't use a port channel)
 interface range gig1/1/1 - 2
+! Switchport command is needed to use this as a layer 2 port
+switchport
 switchport mode trunk
-exit
 
+! VLAN Configs (Add all VLANs to all switches so that VLAN broadcasts work even if a PC on a different VLAN is on a different switch)
 ! Add VLAN 500 (PC0 and PC3)
 vlan 500
-no shut
-
 ! Add VLAN 1000 (So Broadasts work in vlan 1000)
 vlan 1000
-no shut
-
-! Add int 0/1 to VLAN 500
+! Add int 0/1 (The one that is connected to the PC) to VLAN 500
 int g1/0/1
 switchport mode access
 switchport access vlan 500
+exit
 
+! It was determined that this was the root bridge for default (VLAN1), VLAN500 and VLAN1000
+interface vlan 1
+! Give it a description to remember that this is the original root bridge
+description OG-ROOT
+
+! Connection to router on VLAN 1000
+int g1/0/10
+switchport mode access
+switchport access vlan 1000

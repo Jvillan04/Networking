@@ -5,33 +5,33 @@ hostname SWITCH-01
 ! Change spanning tree mode to Rapid PVST
 spanning-tree mode rapid-pvst
 
-! Put all horizontal links on porthcanel 5
-interface range fa0/10 - 11
-! Set switchport mode to trunk (Allow multiple VLANs to pass through)
-switchport mode trunk
-! Etherchannel Configuration (Add interface to etherchannel group)
+! Horizontal Po5
+interface range fa0/10 - 11 , fa0/5
 channel-group 5 mode on
-
-int f0/5
-! Set switchport mode to trunk (Allow multiple VLANs to pass through)
+! Ensure Po5 exists and is a trunk
+interface port-channel 5
 switchport mode trunk
-! Etherchannel Configuration (Add interface to etherchannel group)
-channel-group 5 mode on
-! Make links to MLS1 a trunk
+!
+! To MLS1 (no port-channel) - set as trunks
 interface range g0/1 - 2
 switchport mode trunk
 exit
 
+! VLAN Configs (Add all VLANs to all switches so that VLAN broadcasts work even if a PC on a different VLAN is on a different switch)
 ! Add VLAN 1000 (PC2 and PC1)
 vlan 1000
-no shut
-
 ! Add VLAN 500 (So Broadasts work in vlan 500)
 vlan 500
-no shut
-
 ! Add int 0/1 to VLAN 1000
 int f0/1
 switchport mode access
 switchport access vlan 1000
 
+! This is the counter-clockwise switch so make it root for VLAN 1000 with 2nd lowest priority (4096)
+!## Make Counter-clockwise switch (SWITCH-01) root for VLAN 1000 (2nd lowest = 4096)
+conf t
+spanning-tree vlan 1000 priority 4096
+
+! Save Config
+ end
+ wr me
