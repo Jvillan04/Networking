@@ -1,0 +1,30 @@
+
+!====================== SWITCH0 ======================
+! Set hostname to match display name
+en
+conf t
+hostname Switch0
+!
+! Use rapid PVST on the switch
+spanning-tree mode rapid-pvst
+!
+! Create VLANs used on this switch
+vlan 1000
+ name VLAN1000
+vlan 500
+ name VLAN500
+!
+! Make the PC ports access in the correct VLANs
+interface FastEthernet0/10
+ switchport mode access
+ switchport access vlan 1000
+!
+interface FastEthernet0/11
+ switchport mode access
+ switchport access vlan 500
+!
+! Trunk toward Router0 (Router-on-a-stick)
+interface GigabitEthernet0/1
+ switchport mode trunk
+!
+end

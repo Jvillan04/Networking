@@ -1,0 +1,37 @@
+!====================== ROUTER4 ======================
+en
+conf t
+hostname Router4
+!
+! Link to Router2
+interface GigabitEthernet0/1
+ ip address 10.0.2.4 255.255.255.0
+ no shutdown
+!
+! Link to Router3
+interface GigabitEthernet0/2
+ ip address 192.168.1.4 255.255.255.0
+ no shutdown
+!
+! Create SVI for VLAN 200 (DG for PC2) on the HWIC-4ESW
+interface Vlan200
+ ip address 66.94.77.241 255.255.255.240
+ no shutdown
+!
+! Put the ESW port toward Switch2 into VLAN 200 access
+interface FastEthernet0/2/1
+ switchport mode access
+ switchport access vlan 200
+!
+! Enable rapid-pvst on the switch module (per instructions)
+spanning-tree mode rapid-pvst
+!
+!===== Router4 (R4) — already using specific routes (keep) =====
+! VLANs behind R0: prefer non-serial via R2; backup via R3 (which leads to R0 via serial)
+ip route 38.112.45.64 255.255.255.192 10.0.2.2
+ip route 154.23.88.192 255.255.255.224 10.0.2.2
+! backup via R3 (which leads to R0 via serial)
+ip route 38.112.45.64 255.255.255.192 192.168.1.3 100
+ip route 154.23.88.192 255.255.255.224 192.168.1.3 100
+!
+end

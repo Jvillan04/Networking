@@ -1,0 +1,23 @@
+!====================== SWITCH2 ======================
+en
+conf t
+hostname Switch2
+!
+! Use rapid PVST on the switch
+spanning-tree mode rapid-pvst
+!
+! Create VLAN 200 for PC2
+vlan 200
+ name VLAN200
+!
+! Make the PC port an access port in VLAN 200 (PC2 on F0/10)
+interface FastEthernet0/10
+ switchport mode access
+ switchport access vlan 200
+!
+! Make the Router4<->Switch2 link an access port in VLAN 200
+interface FastEthernet0/21
+ switchport mode access
+ switchport access vlan 200
+!
+end

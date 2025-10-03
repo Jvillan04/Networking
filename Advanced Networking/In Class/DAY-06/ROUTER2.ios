@@ -1,0 +1,25 @@
+!====================== ROUTER2 ======================
+en
+conf t
+hostname Router2
+!
+! Link to Router4
+interface GigabitEthernet0/1
+ ip address 10.0.2.2 255.255.255.0
+ no shutdown
+!
+! Link to Router1
+interface GigabitEthernet0/2
+ ip address 10.0.1.2 255.255.255.0
+ no shutdown
+!
+!===== Router2 (R2) — replace defaults with specifics =====
+! VLAN200 behind R4 (direct next-hop R4)
+ip route 66.94.77.240 255.255.255.240 10.0.2.4
+! VLANs behind R0: prefer non-serial via R1; backup via R4→R3→R0 path
+ip route 38.112.45.64 255.255.255.192 10.0.1.1
+ip route 154.23.88.192 255.255.255.224 10.0.1.1
+ip route 38.112.45.64 255.255.255.192 10.0.2.4 100
+ip route 154.23.88.192 255.255.255.224 10.0.2.4 100
+!
+end

@@ -1,0 +1,31 @@
+!====================== ROUTER3 ======================
+en
+conf t
+hostname Router3
+!
+! Link to Router4
+interface GigabitEthernet0/2
+ ip address 192.168.1.3 255.255.255.0
+ no shutdown
+!
+! Serial link to Router0 (DTE here)
+interface Serial0/3/0
+ ip address 192.168.0.3 255.255.255.0
+ no shutdown
+!
+!===== Router3 (R3) — replace defaults with specifics =====
+! VLANs behind R0: prefer non-serial via R4→R2→R1→R0; backup via serial direct to R0
+! VLAN 1000 route <R4 is next-hop>
+ip route 38.112.45.64 255.255.255.192 192.168.1.4
+! VLAN 500 Route <R4 is next-hop>
+ip route 154.23.88.192 255.255.255.224 192.168.1.4
+! Backup to VLAN 1000 via R1 with AD 100 (serial path)
+ip route 38.112.45.64 255.255.255.192 192.168.0.100 100
+! Backup to VLAN 500 via R1 with AD 100 (serial path)
+ip route 154.23.88.192 255.255.255.224 192.168.0.100 100
+! VLAN200 behind R4: prefer non-serial via R4; backup via serial→R0→R1→R2→R4
+ip route 66.94.77.240 255.255.255.240 192.168.1.4
+! Backup via R3 with AD 100
+ip route 66.94.77.240 255.255.255.240 192.168.0.100 100
+!
+end

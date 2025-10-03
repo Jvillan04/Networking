@@ -1,0 +1,36 @@
+!====================== ROUTER0 ======================
+! Set hostname
+en
+conf t
+hostname Router0
+!
+! Subinterfaces for Router-on-a-stick toward Switch0 (G0/0 <-> SW0 G0/1)
+interface GigabitEthernet0/0
+no shutdown
+interface GigabitEthernet0/0.1
+ encapsulation dot1Q 1000
+ ! First usable for VLAN 1000 (DG for PC0)
+ ip address 38.112.45.65 255.255.255.192   
+!
+interface GigabitEthernet0/0.500
+ encapsulation dot1Q 500
+ ! First usable for VLAN 500 (DG for PC1)
+ ip address 154.23.88.193 255.255.255.224  
+!
+! L3 interconnect to Router1
+interface GigabitEthernet0/1
+ ip address 10.0.0.100 255.255.255.0
+ no shutdown
+!
+! Serial link to Router3 (this side is DCE per instructions)
+interface Serial0/3/0
+ ip address 192.168.0.100 255.255.255.0
+ clock rate 64000
+ no shutdown
+!===== Router0 (R0) — routes to VLAN200 via non-serial, serial backup =====
+! Primary to VLAN200 over R0→R1→R2→R4 (non-serial)
+ip route 66.94.77.240 255.255.255.240 10.0.0.1
+! Backup to VLAN200 over R0↔R3 (serial path) as AD 100 backup
+ip route 66.94.77.240 255.255.255.240 192.168.0.3 100
+!
+end
